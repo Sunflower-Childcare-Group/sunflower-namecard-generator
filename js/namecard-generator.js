@@ -124,8 +124,16 @@ class NamecardGenerator {
             errors.push('Please enter a valid email address');
         }
         
+        if (!data.mobileNumber) {
+            errors.push('Mobile Number is required');
+        }
+        
         if (!data.officeAddress) {
             errors.push('Office Address is required');
+        }
+        
+        if (!this.uploadedImage) {
+            errors.push('Profile Image is required');
         }
         
         return errors;
@@ -336,8 +344,8 @@ class NamecardGenerator {
         
         const data = this.getFormData();
         
-        // Check if there's any meaningful data
-        if (!data.fullName && !data.designation && !data.email && !data.officeAddress) {
+        // Check if there's any meaningful data and image is uploaded
+        if (!data.fullName && !data.designation && !data.email && !data.officeAddress && !this.uploadedImage) {
             this.hideCanvas();
             this.isRendering = false;
             return;

@@ -2,65 +2,83 @@
 
 A professional namecard generator for Sunflower Childcare Group staff members. This tool creates high-quality, print-ready namecards with QR codes containing contact information.
 
+🌻 **Live Demo**: [https://sunflower-childcare-group.github.io/sunflower-namecard-generator/](https://sunflower-childcare-group.github.io/sunflower-namecard-generator/)
+
 ## Features
 
 - **Professional Design**: Matches Sunflower branding with #FFCC00 background
 - **QR Code Generation**: Automatically generates vCard QR codes for easy contact sharing
-- **Image Upload**: Support for profile photos with automatic resizing and circular cropping
-- **High-Resolution Output**: 300 DPI PNG files ready for professional printing
+- **Image Upload**: Support for profile photos with precise positioning and zoom controls
+- **High-Resolution Output**: 300 DPI PNG files with embedded DPI metadata for professional printing
 - **Responsive Design**: Works on desktop and mobile devices
-- **Real-time Preview**: Live canvas preview as you type
+- **Real-time Preview**: Live canvas preview with instant image adjustments
 - **Data Persistence**: Saves form data locally between sessions
+- **Image Manipulation**: Zoom and position controls for perfect photo placement
 
 ## Specifications
 
 - **Dimensions**: 86mm x 54mm (standard business card size)
 - **Resolution**: 300 DPI (1016x638 pixels)
-- **Format**: PNG
+- **Format**: PNG with embedded DPI metadata
 - **Typography**: Poppins font family
-  - Name: 17.9pt Bold (68px)
-  - Designation: 9.2pt (35px)
-  - Contact Info: 5.6pt (21px)
+  - Name: Bold 72px (right-aligned at x=80mm, y=8mm)
+  - Designation: 37px (right-aligned at x=80mm, y=15mm)
+  - Contact Info: 23px (left-aligned at x=9mm with icons at x=6mm)
 
 ## Required Information
 
-- **Name** (required)
-- **Designation** (required)
-- **Email Address** (required)
-- **Office Address** (required)
-- **Mobile Number** (optional)
+- **Name** ⚠️ **Required**
+- **Designation** ⚠️ **Required**
+- **Email Address** ⚠️ **Required**
+- **Office Address** ⚠️ **Required**
+- **Mobile Number** ⚠️ **Required**
 - **Office Number** (optional)
-- **Profile Image** (optional)
+- **Profile Image** ⚠️ **Required**
 
 ## Usage
 
-1. **Fill in your information** in the form on the left
-2. **Upload a profile image** (optional) - square images work best
-3. **Click "Generate Namecard"** to create your namecard
-4. **Preview** your namecard in the canvas on the right
-5. **Click "Download PNG"** to save the high-resolution file
-6. **Send to Nicholas** for professional printing
+1. **Fill in ALL required information** in the form (office number is optional)
+2. **Upload a profile image** (required) - square images work best
+3. **Adjust image position and zoom** using the controls below the preview
+4. **Click "Generate Namecard"** to create your namecard
+5. **Preview** your namecard in the canvas on the right
+6. **Click "Download PNG"** to save the high-resolution file with proper 300 DPI metadata
+7. **Send to Nicholas** for professional printing
+
+## Layout Positioning (Millimeter Precision)
+
+- **Image Frame**: 7mm from top, 6mm from left, 20mm × 24mm dimensions
+- **Name**: Right-aligned at x=80mm, y=8mm
+- **Designation**: Right-aligned at x=80mm, y=15mm
+- **QR Code**: x=56-80mm, y=22-47mm (24mm × 25mm)
+- **Email**: y=35mm (icon at x=6mm, text at x=9mm)
+- **Phone**: y=38.5mm (icon at x=6mm, text at x=9mm)
+- **Address**: y=42mm (icon centered on text, text at x=9mm)
 
 ## Technical Details
 
 ### Dependencies
-- QRCode.js library for QR code generation
-- Google Fonts (Poppins)
-- HTML5 Canvas for rendering
+- Custom QRCode.js library with qrserver.com API fallback
+- Google Fonts (Poppins family)
+- HTML5 Canvas with precise DPI rendering
+- PNG metadata injection for proper DPI embedding
 
 ### Browser Support
-- Modern browsers with HTML5 Canvas support
-- Chrome, Firefox, Safari, Edge
+- Modern browsers with HTML5 Canvas and FileReader support
+- Chrome, Firefox, Safari, Edge (latest versions)
 
 ### File Structure
 ```
 sunflower-namecard-generator/
 ├── index.html              # Main application
 ├── css/
-│   └── style.css          # Styling and layout
+│   └── style.css          # Styling and responsive layout
 ├── js/
-│   └── namecard-generator.js  # Core functionality
-└── README.md              # This file
+│   └── namecard-generator.js  # Core functionality with DPI handling
+├── libs/
+│   ├── qrcode.min.js      # Custom QR code implementation
+│   └── simple-qr.js       # Fallback QR code generator
+└── README.md              # This documentation
 ```
 
 ## Hosting on GitHub Pages
