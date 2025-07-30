@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunflower Namecard Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <img src="https://lh3.googleusercontent.com/d/1jyMkGfMMrs3oraejoV_0Du1PLBT-QOWJ" alt="Sunflower Logo" class="header-logo">
+                <div class="header-text">
+                    <h1>Namecard Generator</h1>
+                    <p>Create your professional Sunflower namecard for printing</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>Your Information</h2>
+                <form id="namecardForm" class="namecard-form">
+                    <div class="form-group">
+                        <label for="fullName">Full Name *</label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="e.g. Josephine Low">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="designation">Designation *</label>
+                        <input type="text" id="designation" name="designation" required placeholder="e.g. Director">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="e.g. jo@sunflowerkid.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="e.g. +65 9736 8663">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="officeNumber">Office Number</label>
+                        <input type="tel" id="officeNumber" name="officeNumber" placeholder="e.g. +65 6260 0231">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="officeAddress">Office Address *</label>
+                        <textarea id="officeAddress" name="officeAddress" required placeholder="e.g. Blk 201E Tampines Street 23&#10;#02-108 Singapore 527201"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profileImage">Profile Image</label>
+                        <div class="image-upload-area" id="imageUploadArea">
+                            <input type="file" id="profileImage" name="profileImage" accept="image/*" class="image-input">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <div class="upload-icon">📷</div>
+                                <p>Click to upload or drag and drop</p>
+                                <small>Recommended: Square image, minimum 300x300px</small>
+                            </div>
+                            <div class="image-preview" id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview">
+                                <button type="button" class="remove-image" id="removeImage">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button type="button" id="generateBtn" class="btn btn-primary">Generate Namecard</button>
+                        <button type="button" id="clearBtn" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <h2>Preview</h2>
+                <div class="preview-container">
+                    <div id="namecardPreview" class="namecard-preview">
+                        <canvas id="namecardCanvas" width="1016" height="638"></canvas>
+                        <div class="placeholder" id="canvasPlaceholder">
+                            <p>👈 Fill in your information to see your namecard preview</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Manipulation Controls -->
+                <div class="image-controls" id="imageControls" style="display: none;">
+                    <h3>Image Adjustment</h3>
+                    <div class="control-group">
+                        <div class="zoom-control">
+                            <label for="imageZoom">Zoom:</label>
+                            <input type="range" id="imageZoom" min="0.5" max="3.0" step="0.1" value="1.0">
+                            <span id="zoomValue">1.0x</span>
+                        </div>
+                        <div class="position-controls">
+                            <label>Position:</label>
+                            <div class="position-buttons">
+                                <button type="button" id="moveUp" class="position-btn">↑</button>
+                                <div class="horizontal-controls">
+                                    <button type="button" id="moveLeft" class="position-btn">←</button>
+                                    <button type="button" id="resetPosition" class="position-btn">⌂</button>
+                                    <button type="button" id="moveRight" class="position-btn">→</button>
+                                </div>
+                                <button type="button" id="moveDown" class="position-btn">↓</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button id="downloadBtn" class="btn btn-success">
+                        💾 Download PNG
+                    </button>
+                    <button id="instructionsBtn" class="btn btn-warning">
+                        📚 Print Instructions
+                    </button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusMessage" class="status-message" style="display: none;">
+                    <p></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Modal -->
+        <div id="instructionsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Printing Instructions</h3>
+                    <button id="closeModal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <ol>
+                        <li><strong>Download your namecard</strong> using the "Download PNG" button above</li>
+                        <li><strong>Check image quality</strong> - the file is 300 DPI, suitable for high-quality printing</li>
+                        <li><strong>Print specifications:</strong>
+                            <ul>
+                                <li><strong>Size:</strong> 86mm x 54mm (standard business card size)</li>
+                                <li><strong>Resolution:</strong> 300 DPI</li>
+                                <li><strong>Color mode:</strong> CMYK recommended for printing</li>
+                                <li><strong>Paper:</strong> 300-350gsm cardstock recommended</li>
+                            </ul>
+                        </li>
+                        <li><strong>Send to Nicholas</strong> for professional printing</li>
+                        <li><strong>Quantity:</strong> Minimum order usually 100 pieces</li>
+                    </ol>
+                    <div class="tip-box">
+                        <strong>💡 Tip:</strong> The generated PNG is print-ready at professional quality!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Sunflower Childcare Group Pte Ltd. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Load local QRCode.js library -->
+    <script src="libs/qrcode.min.js" onload="console.log('QRCode.js library loaded successfully')" onerror="console.error('Failed to load local QRCode.js library')"></script>
+    <script src="js/namecard-generator.js"></script>
+</body>
+</html>
