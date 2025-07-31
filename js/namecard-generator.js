@@ -949,8 +949,8 @@ class NamecardGenerator {
     }
 
     checkPDFDependencies() {
-        // Check if jsPDF is available
-        if (typeof window.jsPDF === 'undefined') {
+        // Check if jsPDF is available (v3.x structure)
+        if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
             return {
                 success: false,
                 error: 'jsPDF library failed to load'
@@ -1008,7 +1008,7 @@ class NamecardGenerator {
         try {
             // Create jsPDF instance with exact business card dimensions
             // 86mm x 54mm in points (1 point = 0.352778mm)
-            const { jsPDF } = window.jsPDF;
+            const { jsPDF } = window.jspdf; // v3.x structure
             const mmToPoints = 2.83465; // 1mm = 2.83465 points
             const cardWidth = 86; // mm
             const cardHeight = 54; // mm
