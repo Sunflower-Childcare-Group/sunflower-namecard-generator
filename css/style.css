@@ -363,6 +363,16 @@ body {
     border-color: #ffeaa7;
 }
 
+.status-message.clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.status-message.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Modal */
 .modal {
     position: fixed;

@@ -195,11 +195,54 @@
         </footer>
     </div>
 
+    <!-- jsPDF Fallback Loading Mechanism -->
+    <script>
+        let jsPDFLoadAttempt = 0;
+        const jsPDFCDNs = [
+            { url: 'https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js', name: 'jsDelivr' },
+            { url: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js', name: 'cdnjs' },
+            { url: 'https://unpkg.com/jspdf@3.0.1/dist/jspdf.umd.min.js', name: 'unpkg' },
+            { url: 'libs/jspdf.umd.min.js', name: 'local fallback' }
+        ];
+
+        function loadJsPDFFallback() {
+            jsPDFLoadAttempt++;
+            
+            if (jsPDFLoadAttempt < jsPDFCDNs.length) {
+                console.log(`Attempting to load jsPDF from ${jsPDFCDNs[jsPDFLoadAttempt].name}...`);
+                
+                const script = document.createElement('script');
+                script.src = jsPDFCDNs[jsPDFLoadAttempt].url;
+                script.onload = () => {
+                    console.log(`jsPDF loaded successfully from ${jsPDFCDNs[jsPDFLoadAttempt].name}`);
+                    // Update UI to show PDF is available
+                    if (window.namecardGenerator) {
+                        window.namecardGenerator.updatePDFButtonVisibility();
+                    }
+                };
+                script.onerror = () => {
+                    console.error(`Failed to load jsPDF from ${jsPDFCDNs[jsPDFLoadAttempt].name}`);
+                    loadJsPDFFallback(); // Try next CDN
+                };
+                
+                document.head.appendChild(script);
+            } else {
+                console.error('All jsPDF CDN attempts failed. PDF export will not be available.');
+                // Show user-friendly error
+                if (window.namecardGenerator) {
+                    window.namecardGenerator.showStatus('⚠️ PDF export unavailable. Please use PNG download instead.', 'warning');
+                }
+            }
+        }
+    </script>
+
     <!-- Load local QRCode.js library -->
     <script src="libs/qrcode.min.js" onload="console.log('QRCode.js library loaded successfully')" onerror="console.error('Failed to load local QRCode.js library')"></script>
     
-    <!-- Load jsPDF library for PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="console.log('jsPDF library loaded successfully')" onerror="console.error('Failed to load jsPDF library')"></script>
+    <!-- Load jsPDF library for PDF export with fallback mechanism -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@3.0.1/dist/jspdf.umd.min.js" 
+            onload="console.log('jsPDF library loaded successfully from jsDelivr')" 
+            onerror="loadJsPDFFallback()"></script>
     
     <!-- Load color conversion utilities -->
     <script src="libs/color-conversion.js" onload="console.log('Color conversion utilities loaded successfully')" onerror="console.error('Failed to load color conversion utilities')"></script>

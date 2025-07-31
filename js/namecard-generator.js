@@ -28,6 +28,24 @@ class NamecardGenerator {
         this.initializeEventListeners();
         this.loadSavedData();
         this.hideCanvas();
+        
+        // Check PDF library status on load
+        this.checkPDFLibraryStatus();
+    }
+
+    checkPDFLibraryStatus() {
+        // Check status after a short delay to allow libraries to load
+        setTimeout(() => {
+            const dependencyCheck = this.checkPDFDependencies();
+            if (!dependencyCheck.success && dependencyCheck.error === 'jsPDF library failed to load') {
+                console.warn('jsPDF not loaded on initial check, fallback mechanism should handle it');
+            } else if (dependencyCheck.success) {
+                console.log('PDF export is ready');
+            }
+            
+            // Update button visibility
+            this.updatePDFButtonVisibility();
+        }, 1000);
     }
 
     initializeEventListeners() {
@@ -862,7 +880,8 @@ class NamecardGenerator {
         // Check dependencies
         const dependencyCheck = this.checkPDFDependencies();
         if (!dependencyCheck.success) {
-            this.showStatus(`❌ PDF generation not available: ${dependencyCheck.error}\n\n💡 Please use PNG download instead.`, 'error');
+            // Show error with retry option
+            this.showPDFLoadError(dependencyCheck.error);
             return;
         }
         
@@ -874,6 +893,49 @@ class NamecardGenerator {
             console.error('PDF generation failed:', error);
             this.handlePDFError(error);
         }
+    }
+
+    showPDFLoadError(error) {
+        let message = `❌ PDF generation not available: ${error}\n\n`;
+        
+        if (error === 'jsPDF library failed to load') {
+            message += '🔄 Click here to retry loading PDF library';
+            
+            // Create clickable status message
+            const statusDiv = this.statusMessage;
+            statusDiv.innerHTML = `<p>${message.replace(/\n/g, '<br>')}</p>`;
+            statusDiv.className = 'status-message error clickable';
+            statusDiv.style.display = 'block';
+            statusDiv.style.cursor = 'pointer';
+            
+            // Add click handler for retry
+            statusDiv.onclick = () => {
+                this.retryLoadingJsPDF();
+            };
+            
+            // Don't auto-hide this message
+            return;
+        }
+        
+        message += '💡 Please use PNG download instead.';
+        this.showStatus(message, 'error');
+    }
+
+    retryLoadingJsPDF() {
+        this.showStatus('🔄 Retrying to load PDF library...', 'info');
+        
+        // Reset and retry loading
+        window.jsPDFLoadAttempt = 0;
+        window.loadJsPDFFallback();
+        
+        // Check again after a delay
+        setTimeout(() => {
+            const dependencyCheck = this.checkPDFDependencies();
+            if (dependencyCheck.success) {
+                this.showStatus('✅ PDF library loaded successfully! You can now download PDFs.', 'success');
+                this.updatePDFButtonVisibility();
+            }
+        }, 2000);
     }
 
     checkPDFDependencies() {
@@ -1250,16 +1312,16 @@ window.addEventListener('load', async () => {
     // Load Poppins font
     await loadPoppinsFont();
     
-    // Initialize the namecard generator
+    // Initialize the namecard generator and store globally
     console.log('Initializing NamecardGenerator...');
-    new NamecardGenerator();
+    window.namecardGenerator = new NamecardGenerator();
 });
 
 // Fallback: Also try on DOMContentLoaded in case window load takes too long
 document.addEventListener('DOMContentLoaded', async () => {
     // Wait a bit for scripts to load
     setTimeout(async () => {
-        if (document.querySelector('.namecard-generator')) {
+        if (window.namecardGenerator) {
             return; // Already initialized
         }
         
@@ -1271,9 +1333,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load Poppins font
         await loadPoppinsFont();
         
-        // Initialize the namecard generator
+        // Initialize the namecard generator and store globally
         console.log('Initializing NamecardGenerator (fallback)...');
-        new NamecardGenerator();
+        window.namecardGenerator = new NamecardGenerator();
     }, 2000);
 });
 
