@@ -922,9 +922,17 @@ class NamecardGenerator {
     }
 
     retryLoadingJsPDF() {
+        // First check if jsPDF is already loaded
+        const dependencyCheck = this.checkPDFDependencies();
+        if (dependencyCheck.success) {
+            this.showStatus('✅ PDF library is already loaded! You can now download PDFs.', 'success');
+            this.updatePDFButtonVisibility();
+            return;
+        }
+        
         this.showStatus('🔄 Retrying to load PDF library...', 'info');
         
-        // Reset and retry loading
+        // Reset and retry loading only if not already loaded
         window.jsPDFLoadAttempt = 0;
         window.loadJsPDFFallback();
         
@@ -934,8 +942,10 @@ class NamecardGenerator {
             if (dependencyCheck.success) {
                 this.showStatus('✅ PDF library loaded successfully! You can now download PDFs.', 'success');
                 this.updatePDFButtonVisibility();
+            } else {
+                this.showStatus('❌ Failed to load PDF library. Please refresh the page or use PNG download.', 'error');
             }
-        }, 2000);
+        }, 3000);
     }
 
     checkPDFDependencies() {

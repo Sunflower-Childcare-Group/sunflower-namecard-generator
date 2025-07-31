@@ -206,6 +206,15 @@
         ];
 
         function loadJsPDFFallback() {
+            // Check if jsPDF is already loaded before attempting
+            if (typeof window.jsPDF !== 'undefined') {
+                console.log('jsPDF is already loaded, no need for fallback');
+                if (window.namecardGenerator) {
+                    window.namecardGenerator.updatePDFButtonVisibility();
+                }
+                return;
+            }
+            
             jsPDFLoadAttempt++;
             
             if (jsPDFLoadAttempt < jsPDFCDNs.length) {
