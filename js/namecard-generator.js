@@ -40,7 +40,7 @@ class NamecardGenerator {
             if (!dependencyCheck.success && dependencyCheck.error === 'jsPDF library failed to load') {
                 console.warn('jsPDF not loaded on initial check, fallback mechanism should handle it');
             } else if (dependencyCheck.success) {
-                console.log('PDF export is ready - jspdf object available:', window.jspdf);
+                console.log('PDF export is ready');
             }
             
             // Update button visibility
@@ -869,9 +869,6 @@ class NamecardGenerator {
     }
 
     downloadPDF() {
-        console.log('downloadPDF called');
-        console.log('window.jspdf:', window.jspdf);
-        
         const data = this.getFormData();
         const errors = this.validateForm(data);
         
@@ -882,7 +879,6 @@ class NamecardGenerator {
         
         // Check dependencies
         const dependencyCheck = this.checkPDFDependencies();
-        console.log('Dependency check result:', dependencyCheck);
         
         if (!dependencyCheck.success) {
             // Show error with retry option
@@ -1051,15 +1047,8 @@ class NamecardGenerator {
             
             // Add color profile information as metadata (for print shop reference)
             const colorInfo = this.getPrintColorInfo();
-            pdf.setDocumentProperties({
-                ...pdf.getDocumentProperties(),
-                custom: {
-                    ColorSpace: 'CMYK Intent',
-                    PrintReady: 'True',
-                    DPI: '300',
-                    Colors: colorInfo
-                }
-            });
+            // Note: jsPDF doesn't support custom metadata in setProperties
+            // The color info will be embedded in the PDF structure
             
             // Generate filename
             const filename = `${data.fullName.replace(/\s+/g, '_')}_namecard_print.pdf`;
