@@ -1211,7 +1211,7 @@ class NamecardGenerator {
         
         // Name (large, bold, right-aligned)
         if (data.fullName) {
-            pdf.setFontSize(25); // Larger font size for better quality
+            pdf.setFontSize(18.1); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
             const nameX = 80; // 80mm from left
             const nameY = 14; // 14mm from top (adjusted for larger font)
@@ -1233,7 +1233,7 @@ class NamecardGenerator {
                 pdf.setFont('helvetica', 'normal');
             }
             
-            pdf.setFontSize(13);
+            pdf.setFontSize(9.3); // Match Canva font size
             const designationText = data.designation.toUpperCase();
             const designationX = 80; // 80mm from left
             const designationY = 21; // 21mm from top
@@ -1253,7 +1253,7 @@ class NamecardGenerator {
             pdf.setFont('helvetica', 'normal');
         }
         
-        pdf.setFontSize(8);
+        pdf.setFontSize(5.7); // Match Canva font size
         const iconX = 6;
         const textX = 12; // Move text right to make space for icons
         
