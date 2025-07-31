@@ -1030,20 +1030,8 @@ class NamecardGenerator {
                 creator: 'Sunflower Childcare Group'
             });
             
-            // Convert canvas to high-quality image with color correction
-            const canvasImageData = this.getCanvasImageForPrint();
-            
-            // Add the image to PDF at exact dimensions
-            pdf.addImage(
-                canvasImageData,
-                'PNG',
-                0, // x position
-                0, // y position
-                cardWidth, // width in mm
-                cardHeight, // height in mm
-                undefined, // alias
-                'FAST' // compression
-            );
+            // Instead of embedding the entire canvas as image, let's render vector elements
+            await this.renderVectorPDF(pdf, data, cardWidth, cardHeight);
             
             // Add color profile information as metadata (for print shop reference)
             const colorInfo = this.getPrintColorInfo();
@@ -1105,6 +1093,233 @@ class NamecardGenerator {
         const textCmyk = window.colorConverter.getCmykDescription('darkText');
         
         return `Background: ${yellowCmyk}, Text: ${textCmyk}`;
+    }
+
+    async renderVectorPDF(pdf, data, cardWidth, cardHeight) {
+        const mmToPx = 11.81; // Conversion factor from canvas
+        
+        // Set background color (Sunflower Yellow)
+        pdf.setFillColor(255, 204, 0); // #FFCC00
+        pdf.rect(0, 0, cardWidth, cardHeight, 'F');
+        
+        // Add profile image at high quality
+        if (this.uploadedImage) {
+            await this.addHighQualityImage(pdf);
+        }
+        
+        // Add vector text elements
+        this.addVectorText(pdf, data);
+        
+        // Add QR code at high quality
+        if (this.qrCodeDataUrl) {
+            await this.addHighQualityQRCode(pdf);
+        }
+        
+        // Add contact icons (vector if possible, high-res if not)
+        await this.addContactIcons(pdf, data);
+    }
+
+    async addHighQualityImage(pdf) {
+        const mmToPx = 11.81;
+        
+        // Profile image positioning (from canvas coordinates)
+        const frameX = 6; // 6mm from left
+        const frameY = 7; // 7mm from top  
+        const frameWidth = 20; // 20mm width
+        const frameHeight = 24; // 24mm height
+        
+        // Create high-resolution version of the image
+        const highResCanvas = document.createElement('canvas');
+        const highResCtx = highResCanvas.getContext('2d');
+        
+        // Scale up for better quality (2x resolution)
+        const scale = 2;
+        highResCanvas.width = frameWidth * mmToPx * scale;
+        highResCanvas.height = frameHeight * mmToPx * scale;
+        
+        // Apply image transformations at high resolution
+        const imageZoom = this.imageZoom || 1.0;
+        const imageOffsetX = (this.imageOffsetX || 0) * scale;
+        const imageOffsetY = (this.imageOffsetY || 0) * scale;
+        
+        highResCtx.save();
+        
+        // Calculate scaled dimensions
+        const imgAspect = this.uploadedImage.width / this.uploadedImage.height;
+        const frameAspect = frameWidth / frameHeight;
+        
+        let drawWidth, drawHeight, drawX, drawY;
+        
+        if (imgAspect > frameAspect) {
+            drawHeight = highResCanvas.height * imageZoom;
+            drawWidth = drawHeight * imgAspect;
+            drawX = -(drawWidth - highResCanvas.width) / 2 + imageOffsetX;
+            drawY = imageOffsetY;
+        } else {
+            drawWidth = highResCanvas.width * imageZoom;
+            drawHeight = drawWidth / imgAspect;
+            drawX = imageOffsetX;
+            drawY = -(drawHeight - highResCanvas.height) / 2 + imageOffsetY;
+        }
+        
+        // Draw high-res image
+        highResCtx.drawImage(this.uploadedImage, drawX, drawY, drawWidth, drawHeight);
+        
+        // Apply color correction
+        if (window.colorConverter) {
+            const imageData = highResCtx.getImageData(0, 0, highResCanvas.width, highResCanvas.height);
+            const correctedData = window.colorConverter.applyPrintColorCorrection(imageData);
+            highResCtx.putImageData(correctedData, 0, 0);
+        }
+        
+        highResCtx.restore();
+        
+        // Add to PDF with better compression
+        const highResImageData = highResCanvas.toDataURL('image/jpeg', 0.95);
+        pdf.addImage(
+            highResImageData,
+            'JPEG',
+            frameX,
+            frameY,
+            frameWidth,
+            frameHeight,
+            undefined,
+            'SLOW' // Better compression
+        );
+    }
+
+    addVectorText(pdf, data) {
+        // Set text color (dark gray)
+        pdf.setTextColor(44, 44, 44); // #2c2c2c
+        
+        // Try to use Poppins font (fallback to Helvetica)
+        try {
+            pdf.setFont('Poppins', 'bold');
+        } catch (e) {
+            pdf.setFont('Helvetica', 'bold');
+        }
+        
+        // Name (large, bold, right-aligned)
+        if (data.fullName) {
+            pdf.setFontSize(25); // Larger font size for better quality
+            const nameText = data.fullName.toUpperCase();
+            const nameX = 80; // 80mm from left
+            const nameY = 14; // 14mm from top (adjusted for larger font)
+            
+            // Measure text width for right alignment
+            const textWidth = pdf.getTextWidth(nameText);
+            pdf.text(nameText, nameX - textWidth, nameY);
+        }
+        
+        // Designation (medium, right-aligned)
+        if (data.designation) {
+            try {
+                pdf.setFont('Poppins', 'normal');
+            } catch (e) {
+                pdf.setFont('Helvetica', 'normal');
+            }
+            
+            pdf.setFontSize(13);
+            const designationText = data.designation.toUpperCase();
+            const designationX = 80; // 80mm from left
+            const designationY = 21; // 21mm from top
+            
+            const textWidth = pdf.getTextWidth(designationText);
+            pdf.text(designationText, designationX - textWidth, designationY);
+        }
+        
+        // Contact information (smaller, left-aligned)
+        pdf.setFontSize(8);
+        const iconX = 6;
+        const textX = 12; // Move text right to make space for icons
+        
+        let currentY = 35;
+        
+        // Email
+        if (data.email) {
+            pdf.text(data.email, textX, currentY);
+            currentY += 4;
+        }
+        
+        // Phone numbers
+        const phoneNumbers = [];
+        if (data.mobileNumber) phoneNumbers.push(data.mobileNumber);
+        if (data.officeNumber) phoneNumbers.push(data.officeNumber);
+        
+        if (phoneNumbers.length > 0) {
+            const phoneText = phoneNumbers.join(' | ');
+            pdf.text(phoneText, textX, currentY);
+            currentY += 4;
+        }
+        
+        // Address (multiline)
+        if (data.officeAddress) {
+            const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== '');
+            addressLines.forEach(line => {
+                pdf.text(line, textX, currentY);
+                currentY += 4;
+            });
+        }
+    }
+
+    async addHighQualityQRCode(pdf) {
+        // QR code positioning (from canvas coordinates)
+        const qrX = 56; // 56mm from left
+        const qrY = 22; // 22mm from top
+        const qrSize = 24; // 24mm size
+        
+        // Create high-resolution QR code
+        const qrImg = new Image();
+        qrImg.crossOrigin = 'anonymous';
+        
+        return new Promise((resolve) => {
+            qrImg.onload = () => {
+                // Add white background for QR code
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(qrX - 1, qrY - 1, qrSize + 2, qrSize + 2, 'F');
+                
+                // Add QR code with better compression
+                pdf.addImage(
+                    this.qrCodeDataUrl,
+                    'PNG',
+                    qrX,
+                    qrY,
+                    qrSize,
+                    qrSize,
+                    undefined,
+                    'SLOW'
+                );
+                resolve();
+            };
+            qrImg.onerror = () => resolve(); // Continue without QR code if failed
+            qrImg.src = this.qrCodeDataUrl;
+        });
+    }
+
+    async addContactIcons(pdf, data) {
+        // For now, we'll skip the icons to focus on text quality
+        // Icons would need to be vectorized or provided as high-res images
+        
+        // Add simple colored circles as placeholders
+        pdf.setFillColor(44, 44, 44); // Dark gray
+        
+        let iconY = 35;
+        const iconX = 8;
+        const iconRadius = 1.5;
+        
+        if (data.email) {
+            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+            iconY += 4;
+        }
+        
+        if (data.mobileNumber || data.officeNumber) {
+            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+            iconY += 4;
+        }
+        
+        if (data.officeAddress) {
+            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+        }
     }
 
     // Add DPI metadata to PNG file
