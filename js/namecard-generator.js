@@ -1234,13 +1234,13 @@ class NamecardGenerator {
         
         // Designation (medium, right-aligned)
         if (data.designation) {
-            const fontName = window.fontLoader.getFontName('semibold');
-            const fontStyle = window.fontLoader.getFontStyle('semibold');
+            const fontName = window.fontLoader.getFontName('normal');
+            const fontStyle = window.fontLoader.getFontStyle('normal');
             
             try {
                 pdf.setFont(fontName, fontStyle);
             } catch (error) {
-                console.warn('Poppins SemiBold font not available, using Helvetica fallback');
+                console.warn('Poppins Regular font not available, using Helvetica fallback');
                 pdf.setFont('helvetica', 'normal');
             }
             
@@ -1267,33 +1267,32 @@ class NamecardGenerator {
         
         pdf.setFontSize(5.7); // Match Canva font size
         const iconX = 6;
-        const textX = 12; // Move text right to make space for icons
+        const textX = 9.42; // Match canvas: 9mm + 5px = 9.42mm (to match canvas textX)
         
         let currentY = 35;
         
-        // Email
+        // Email at y=35mm (match canvas)
         if (data.email) {
-            pdf.text(data.email, textX, currentY);
-            currentY += 4;
+            pdf.text(data.email, textX, adjustYForBaseline(35, 5.7));
         }
         
-        // Phone numbers
+        // Phone numbers at y=38.5mm (match canvas)
         const phoneNumbers = [];
         if (data.mobileNumber) phoneNumbers.push(data.mobileNumber);
         if (data.officeNumber) phoneNumbers.push(data.officeNumber);
         
         if (phoneNumbers.length > 0) {
             const phoneText = phoneNumbers.join(' | ');
-            pdf.text(phoneText, textX, currentY);
-            currentY += 4;
+            pdf.text(phoneText, textX, adjustYForBaseline(38.5, 5.7));
         }
         
-        // Address (multiline)
+        // Address at y=42mm (match canvas)
         if (data.officeAddress) {
             const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== '');
+            let addressY = 42; // Start at 42mm like canvas
             addressLines.forEach(line => {
-                pdf.text(line, textX, currentY);
-                currentY += 4;
+                pdf.text(line, textX, adjustYForBaseline(addressY, 5.7));
+                addressY += 2.54; // 2.54mm = 30px spacing (like canvas: 30px ÷ 11.81 px/mm)
             });
         }
     }
