@@ -1206,6 +1206,9 @@ class NamecardGenerator {
             return y + (fontSize * 0.176389); // Reduced conversion factor (half of 0.352778)
         };
         
+        // Define consistent right-alignment reference point
+        const rightAlignX = 80; // 80mm from left (consistent for both name and designation)
+        
         // Use Poppins font with Helvetica as fallback
         const fontName = window.fontLoader.getFontName('bold');
         const fontStyle = window.fontLoader.getFontStyle('bold');
@@ -1222,12 +1225,11 @@ class NamecardGenerator {
             const fontSize = 18.1;
             pdf.setFontSize(fontSize); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
-            const nameX = 80; // 80mm from left
             const nameY = adjustYForBaseline(8, fontSize); // 8mm from top (canvas positioning)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
-            pdf.text(nameText, nameX - textWidth, nameY);
+            pdf.text(nameText, rightAlignX - textWidth, nameY);
         }
         
         // Designation (medium, right-aligned)
@@ -1245,11 +1247,11 @@ class NamecardGenerator {
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
-            const designationX = 80; // 80mm from left
             const designationY = adjustYForBaseline(15, fontSize); // 15mm from top (canvas positioning)
             
+            // Use same right-alignment reference point as name
             const textWidth = pdf.getTextWidth(designationText);
-            pdf.text(designationText, designationX - textWidth, designationY);
+            pdf.text(designationText, rightAlignX - textWidth, designationY);
         }
         
         // Contact information (smaller, left-aligned)
