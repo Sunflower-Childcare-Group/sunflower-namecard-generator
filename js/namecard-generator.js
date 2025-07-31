@@ -100,10 +100,13 @@ class NamecardGenerator {
         return {
             fullName: document.getElementById('fullName')?.value.trim() || '',
             designation: document.getElementById('designation')?.value.trim() || '',
+            company: document.getElementById('company')?.value.trim() || '',
             email: document.getElementById('email')?.value.trim() || '',
             mobileNumber: document.getElementById('mobileNumber')?.value.trim() || '',
             officeNumber: document.getElementById('officeNumber')?.value.trim() || '',
-            officeAddress: document.getElementById('officeAddress')?.value.trim() || ''
+            officeAddress: document.getElementById('officeAddress')?.value.trim() || '',
+            instagram: document.getElementById('instagram')?.value.trim() || '',
+            facebook: document.getElementById('facebook')?.value.trim() || ''
         };
     }
 
@@ -118,14 +121,18 @@ class NamecardGenerator {
             errors.push('Designation is required');
         }
         
+        if (!data.company) {
+            errors.push('Company is required');
+        }
+        
         if (!data.email) {
             errors.push('Email Address is required');
         } else if (!this.isValidEmail(data.email)) {
             errors.push('Please enter a valid email address');
         }
         
-        if (!data.mobileNumber) {
-            errors.push('Mobile Number is required');
+        if (!data.officeNumber) {
+            errors.push('Office Number is required');
         }
         
         if (!data.officeAddress) {
@@ -268,20 +275,65 @@ class NamecardGenerator {
             return null;
         }
 
-        const phoneNumbers = [];
-        if (data.mobileNumber) phoneNumbers.push(`TEL;TYPE=CELL:${data.mobileNumber}`);
-        if (data.officeNumber) phoneNumbers.push(`TEL;TYPE=WORK:${data.officeNumber}`);
-        
-        const vCardData = [
+        // Build vCard in specified order with fixed values
+        const vCardFields = [
             'BEGIN:VCARD',
-            'VERSION:3.0',
-            `FN:${data.fullName}`,
-            `TITLE:${data.designation}`,
-            `EMAIL:${data.email}`,
-            ...phoneNumbers,
-            `ADR;TYPE=WORK:;;${data.officeAddress.replace(/\n/g, ', ')};;;;`,
-            'END:VCARD'
-        ].join('\r\n');
+            'VERSION:3.0'
+        ];
+
+        // 1. Name (compulsory)
+        if (data.fullName) {
+            vCardFields.push(`FN:${data.fullName}`);
+        }
+
+        // 2. Designation (compulsory)
+        if (data.designation) {
+            vCardFields.push(`TITLE:${data.designation}`);
+        }
+
+        // 3. Company (compulsory)
+        if (data.company) {
+            vCardFields.push(`ORG:${data.company}`);
+        }
+
+        // 4. Address (compulsory)
+        if (data.officeAddress) {
+            vCardFields.push(`ADR;TYPE=WORK:;;${data.officeAddress.replace(/\n/g, ', ')};;;;`);
+        }
+
+        // 5. Mobile number (optional)
+        if (data.mobileNumber) {
+            vCardFields.push(`TEL;TYPE=CELL:${data.mobileNumber}`);
+        }
+
+        // 6. Office number (compulsory)
+        if (data.officeNumber) {
+            vCardFields.push(`TEL;TYPE=WORK:${data.officeNumber}`);
+        }
+
+        // 7. Email (compulsory)
+        if (data.email) {
+            vCardFields.push(`EMAIL:${data.email}`);
+        }
+
+        // 8. Website: www.sunflowerkid.com (fixed)
+        vCardFields.push(`URL:https://www.sunflowerkid.com`);
+
+        // 9. Instagram (optional) - format as handle
+        if (data.instagram) {
+            // Remove @ if user included it
+            const instagramHandle = data.instagram.replace(/^@/, '');
+            vCardFields.push(`URL;TYPE=Instagram:https://www.instagram.com/${instagramHandle}`);
+        }
+
+        // 10. Facebook (optional) - format as full URL
+        if (data.facebook) {
+            vCardFields.push(`URL;TYPE=Facebook:${data.facebook}`);
+        }
+
+        vCardFields.push('END:VCARD');
+        
+        const vCardData = vCardFields.join('\r\n');
 
         try {
             console.log('QRCode library available, generating QR code with data:', vCardData);
@@ -376,7 +428,7 @@ class NamecardGenerator {
 
         // Generate and draw QR code first if we have enough data
         let qrGenerated = false;
-        if (data.fullName && data.email && data.officeAddress) {
+        if (data.fullName && data.designation && data.company && data.email && data.officeNumber && data.officeAddress) {
             try {
                 await this.generateVCardQR(data);
                 if (this.qrCodeDataUrl) {
@@ -464,7 +516,7 @@ class NamecardGenerator {
         }
 
         // Debug info
-        if (!qrGenerated && data.fullName && data.email && data.officeAddress) {
+        if (!qrGenerated && data.fullName && data.designation && data.company && data.email && data.officeNumber && data.officeAddress) {
             console.log('QR code should have been generated but failed');
         }
     }
