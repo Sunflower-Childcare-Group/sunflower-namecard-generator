@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__zen__planner",
+      "Bash(node:*)"
+    ],
+    "deny": []
+  }
+}

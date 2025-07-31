@@ -544,6 +544,56 @@ body {
     }
 }
 
+/* Disabled button styles */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    position: relative;
+}
+
+.btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Tooltip on hover for disabled buttons */
+.btn:disabled:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 8px;
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeIn 0.3s ease forwards;
+}
+
+.btn:disabled:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #333;
+    margin-bottom: 2px;
+    opacity: 0;
+    animation: tooltipFadeIn 0.3s ease forwards;
+}
+
+@keyframes tooltipFadeIn {
+    to { opacity: 1; }
+}
+
 /* Focus indicators for accessibility */
 .btn:focus,
 input:focus,

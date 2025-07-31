@@ -136,6 +136,9 @@
                     <button id="downloadBtn" class="btn btn-success">
                         💾 Download PNG
                     </button>
+                    <button id="downloadPdfBtn" class="btn btn-primary">
+                        📄 Download PDF for Print
+                    </button>
                     <button id="instructionsBtn" class="btn btn-warning">
                         📚 Print Instructions
                     </button>
@@ -156,22 +159,31 @@
                     <button id="closeModal" class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
+                    <h4>Download Options:</h4>
+                    <ul>
+                        <li><strong>PNG Format:</strong> For screen sharing, email, or basic printing</li>
+                        <li><strong>PDF Format:</strong> For professional printing with CMYK color optimization</li>
+                    </ul>
+
+                    <h4>Professional Printing Instructions:</h4>
                     <ol>
-                        <li><strong>Download your namecard</strong> using the "Download PNG" button above</li>
-                        <li><strong>Check image quality</strong> - the file is 300 DPI, suitable for high-quality printing</li>
+                        <li><strong>Download PDF for Print</strong> using the "📄 Download PDF for Print" button above for best results</li>
                         <li><strong>Print specifications:</strong>
                             <ul>
                                 <li><strong>Size:</strong> 86mm x 54mm (standard business card size)</li>
-                                <li><strong>Resolution:</strong> 300 DPI</li>
-                                <li><strong>Color mode:</strong> CMYK recommended for printing</li>
+                                <li><strong>Resolution:</strong> 300 DPI equivalent</li>
+                                <li><strong>Color mode:</strong> CMYK optimized (PDF includes color profile information)</li>
                                 <li><strong>Paper:</strong> 300-350gsm cardstock recommended</li>
+                                <li><strong>Colors:</strong> Sunflower Yellow (C:0% M:20% Y:100% K:0%), Text (C:0% M:0% Y:0% K:83%)</li>
                             </ul>
                         </li>
                         <li><strong>Send to Nicholas</strong> for professional printing</li>
                         <li><strong>Quantity:</strong> Minimum order usually 100 pieces</li>
+                        <li><strong>Quality check:</strong> Both PNG and PDF are 300 DPI quality</li>
                     </ol>
+                    
                     <div class="tip-box">
-                        <strong>💡 Tip:</strong> The generated PNG is print-ready at professional quality!
+                        <strong>💡 Pro Tip:</strong> Use PDF for professional printing as it includes CMYK color information and print specifications. Use PNG for digital sharing or home printing.
                     </div>
                 </div>
             </div>
@@ -185,6 +197,13 @@
 
     <!-- Load local QRCode.js library -->
     <script src="libs/qrcode.min.js" onload="console.log('QRCode.js library loaded successfully')" onerror="console.error('Failed to load local QRCode.js library')"></script>
+    
+    <!-- Load jsPDF library for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="console.log('jsPDF library loaded successfully')" onerror="console.error('Failed to load jsPDF library')"></script>
+    
+    <!-- Load color conversion utilities -->
+    <script src="libs/color-conversion.js" onload="console.log('Color conversion utilities loaded successfully')" onerror="console.error('Failed to load color conversion utilities')"></script>
+    
     <script src="js/namecard-generator.js"></script>
 </body>
 </html>

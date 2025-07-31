@@ -78,6 +78,7 @@ class NamecardGenerator {
         document.getElementById('generateBtn').addEventListener('click', () => this.generateNamecard());
         document.getElementById('clearBtn').addEventListener('click', () => this.clearForm());
         document.getElementById('downloadBtn').addEventListener('click', () => this.downloadNamecard());
+        document.getElementById('downloadPdfBtn').addEventListener('click', () => this.downloadPDF());
         document.getElementById('instructionsBtn').addEventListener('click', () => this.showInstructions());
         document.getElementById('closeModal').addEventListener('click', () => this.hideInstructions());
 
@@ -371,6 +372,19 @@ class NamecardGenerator {
         this.canvas.style.display = 'block';
         this.placeholder.style.display = 'none';
         this.actionButtons.style.display = 'block';
+        
+        // Show/hide PDF button based on availability
+        this.updatePDFButtonVisibility();
+    }
+
+    updatePDFButtonVisibility() {
+        const pdfButton = document.getElementById('downloadPdfBtn');
+        if (pdfButton) {
+            // Always keep the button enabled and visible, just like the PNG button
+            pdfButton.style.display = 'inline-flex';
+            pdfButton.disabled = false;
+            pdfButton.title = 'Download namecard as PDF for professional printing';
+        }
     }
 
     // Debounced update preview to prevent double rendering
@@ -834,6 +848,197 @@ class NamecardGenerator {
                 this.showStatus('❌ Download failed. Please try again.', 'error');
             }
         }
+    }
+
+    downloadPDF() {
+        const data = this.getFormData();
+        const errors = this.validateForm(data);
+        
+        if (errors.length > 0) {
+            this.showStatus('Please fix the following errors before downloading PDF:\n\n' + errors.join('\n'), 'error');
+            return;
+        }
+        
+        // Check dependencies
+        const dependencyCheck = this.checkPDFDependencies();
+        if (!dependencyCheck.success) {
+            this.showStatus(`❌ PDF generation not available: ${dependencyCheck.error}\n\n💡 Please use PNG download instead.`, 'error');
+            return;
+        }
+        
+        this.showStatus('🔄 Generating PDF for print...', 'info');
+        
+        try {
+            this.generatePDF(data);
+        } catch (error) {
+            console.error('PDF generation failed:', error);
+            this.handlePDFError(error);
+        }
+    }
+
+    checkPDFDependencies() {
+        // Check if jsPDF is available
+        if (typeof window.jsPDF === 'undefined') {
+            return {
+                success: false,
+                error: 'jsPDF library failed to load'
+            };
+        }
+
+        // Check if color converter is available
+        if (typeof window.colorConverter === 'undefined') {
+            console.warn('Color converter not available - using basic color handling');
+        }
+
+        // Check browser capabilities
+        if (!document.createElement('canvas').getContext) {
+            return {
+                success: false,
+                error: 'Canvas support not available in this browser'
+            };
+        }
+
+        return { success: true };
+    }
+
+    handlePDFError(error) {
+        let errorMessage = '❌ PDF generation failed. ';
+        let suggestion = 'Please try PNG download instead.';
+
+        // Provide specific error messages based on error type
+        if (error.name === 'QuotaExceededError' || error.message.includes('memory')) {
+            errorMessage += 'Not enough memory available.';
+            suggestion = 'Try refreshing the page and generating a simpler namecard, or use PNG download.';
+        } else if (error.message.includes('network') || error.message.includes('load')) {
+            errorMessage += 'Network or loading error.';
+            suggestion = 'Check your internet connection and try again, or use PNG download.';
+        } else if (error.message.includes('canvas')) {
+            errorMessage += 'Canvas rendering error.';
+            suggestion = 'Try regenerating the namecard or use PNG download.';
+        } else {
+            errorMessage += 'Unexpected error occurred.';
+        }
+
+        this.showStatus(`${errorMessage}\n\n💡 ${suggestion}`, 'error');
+
+        // Log detailed error for debugging
+        console.error('Detailed PDF error:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+    }
+
+    async generatePDF(data) {
+        // Show loading state
+        this.canvas.parentElement.classList.add('loading');
+        
+        try {
+            // Create jsPDF instance with exact business card dimensions
+            // 86mm x 54mm in points (1 point = 0.352778mm)
+            const { jsPDF } = window.jsPDF;
+            const mmToPoints = 2.83465; // 1mm = 2.83465 points
+            const cardWidth = 86; // mm
+            const cardHeight = 54; // mm
+            
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: [cardWidth, cardHeight],
+                compress: true
+            });
+            
+            // Set PDF metadata for print
+            pdf.setProperties({
+                title: `${data.fullName}_Namecard_Print`,
+                subject: 'Sunflower Business Card - Print Ready',
+                author: 'Sunflower Namecard Generator',
+                keywords: 'business card, print, CMYK, professional',
+                creator: 'Sunflower Childcare Group'
+            });
+            
+            // Convert canvas to high-quality image with color correction
+            const canvasImageData = this.getCanvasImageForPrint();
+            
+            // Add the image to PDF at exact dimensions
+            pdf.addImage(
+                canvasImageData,
+                'PNG',
+                0, // x position
+                0, // y position
+                cardWidth, // width in mm
+                cardHeight, // height in mm
+                undefined, // alias
+                'FAST' // compression
+            );
+            
+            // Add color profile information as metadata (for print shop reference)
+            const colorInfo = this.getPrintColorInfo();
+            pdf.setDocumentProperties({
+                ...pdf.getDocumentProperties(),
+                custom: {
+                    ColorSpace: 'CMYK Intent',
+                    PrintReady: 'True',
+                    DPI: '300',
+                    Colors: colorInfo
+                }
+            });
+            
+            // Generate filename
+            const filename = `${data.fullName.replace(/\s+/g, '_')}_namecard_print.pdf`;
+            
+            // Save the PDF
+            pdf.save(filename);
+            
+            this.showStatus('📄 Print-ready PDF downloaded successfully!', 'success');
+            
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            this.showStatus('❌ PDF generation failed. Please try again or use PNG download.', 'error');
+        } finally {
+            // Remove loading state
+            this.canvas.parentElement.classList.remove('loading');
+        }
+    }
+
+    getCanvasImageForPrint() {
+        // Get high-quality image data from canvas
+        const imageData = this.canvas.toDataURL('image/png', 1.0);
+        
+        // Apply color correction if color converter is available
+        if (window.colorConverter) {
+            // Create temporary canvas for color correction
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = this.canvas.width;
+            tempCanvas.height = this.canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw original canvas to temp canvas
+            tempCtx.drawImage(this.canvas, 0, 0);
+            
+            // Get image data and apply color correction
+            const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const correctedData = window.colorConverter.applyPrintColorCorrection(imgData);
+            
+            // Put corrected data back
+            tempCtx.putImageData(correctedData, 0, 0);
+            
+            return tempCanvas.toDataURL('image/png', 1.0);
+        }
+        
+        return imageData;
+    }
+
+    getPrintColorInfo() {
+        if (!window.colorConverter) {
+            return 'Standard RGB colors';
+        }
+        
+        // Generate color information for print shop
+        const yellowCmyk = window.colorConverter.getCmykDescription('sunflowerYellow');
+        const textCmyk = window.colorConverter.getCmykDescription('darkText');
+        
+        return `Background: ${yellowCmyk}, Text: ${textCmyk}`;
     }
 
     // Add DPI metadata to PNG file

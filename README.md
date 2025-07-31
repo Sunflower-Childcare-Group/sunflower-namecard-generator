@@ -9,17 +9,23 @@ A professional namecard generator for Sunflower Childcare Group staff members. T
 - **Professional Design**: Matches Sunflower branding with #FFCC00 background
 - **QR Code Generation**: Automatically generates vCard QR codes for easy contact sharing
 - **Image Upload**: Support for profile photos with precise positioning and zoom controls
-- **High-Resolution Output**: 300 DPI PNG files with embedded DPI metadata for professional printing
+- **Dual Export Formats**: 
+  - **PNG**: 300 DPI files with embedded DPI metadata for basic printing
+  - **PDF**: Print-ready files with CMYK color optimization for professional printing
+- **CMYK Color Support**: Automatic color space conversion for professional printing workflows
 - **Responsive Design**: Works on desktop and mobile devices
 - **Real-time Preview**: Live canvas preview with instant image adjustments
 - **Data Persistence**: Saves form data locally between sessions
 - **Image Manipulation**: Zoom and position controls for perfect photo placement
+- **Error Handling**: Comprehensive fallback mechanisms and user-friendly error messages
 
 ## Specifications
 
 - **Dimensions**: 86mm x 54mm (standard business card size)
 - **Resolution**: 300 DPI (1016x638 pixels)
-- **Format**: PNG with embedded DPI metadata
+- **Export Formats**: 
+  - PNG with embedded DPI metadata
+  - PDF with CMYK color profile and print specifications
 - **Typography**: Poppins font family
   - Name: Bold 72px (right-aligned at x=80mm, y=8mm)
   - Designation: 37px (right-aligned at x=80mm, y=15mm)
@@ -42,7 +48,9 @@ A professional namecard generator for Sunflower Childcare Group staff members. T
 3. **Adjust image position and zoom** using the controls below the preview
 4. **Click "Generate Namecard"** to create your namecard
 5. **Preview** your namecard in the canvas on the right
-6. **Click "Download PNG"** to save the high-resolution file with proper 300 DPI metadata
+6. **Download your namecard**:
+   - **"💾 Download PNG"** for digital sharing or basic printing
+   - **"📄 Download PDF for Print"** for professional printing with CMYK colors
 7. **Send to Nicholas** for professional printing
 
 ## Layout Positioning (Millimeter Precision)
@@ -59,6 +67,8 @@ A professional namecard generator for Sunflower Childcare Group staff members. T
 
 ### Dependencies
 - Custom QRCode.js library with qrserver.com API fallback
+- jsPDF library (v2.5.1) for PDF generation
+- Color conversion utilities for CMYK support
 - Google Fonts (Poppins family)
 - HTML5 Canvas with precise DPI rendering
 - PNG metadata injection for proper DPI embedding
@@ -77,7 +87,8 @@ sunflower-namecard-generator/
 │   └── namecard-generator.js  # Core functionality with DPI handling
 ├── libs/
 │   ├── qrcode.min.js      # Custom QR code implementation
-│   └── simple-qr.js       # Fallback QR code generator
+│   ├── simple-qr.js       # Fallback QR code generator
+│   └── color-conversion.js # CMYK color conversion utilities
 └── README.md              # This documentation
 ```
 
@@ -107,11 +118,17 @@ When scanned, the QR code will prompt users to save the contact information dire
 
 ## Printing Guidelines
 
-- **File format**: PNG at 300 DPI
+### For Professional Printing (Recommended)
+- **File format**: PDF with CMYK color profile
+- **Colors**: Sunflower Yellow (C:0% M:20% Y:100% K:0%), Text (C:0% M:0% Y:0% K:83%)
 - **Paper**: 300-350gsm cardstock recommended
 - **Finish**: Matte or glossy finish
 - **Cutting**: Ensure precise 86mm x 54mm dimensions
-- **Color**: CMYK color profile for professional printing
+
+### For Basic/Home Printing
+- **File format**: PNG at 300 DPI with embedded DPI metadata
+- **Color**: RGB color space (suitable for most home/office printers)
+- **Paper**: Standard cardstock or photo paper
 
 ## Support
 
