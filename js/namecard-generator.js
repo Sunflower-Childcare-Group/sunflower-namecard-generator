@@ -1198,6 +1198,10 @@ class NamecardGenerator {
         // Set text color (dark gray)
         pdf.setTextColor(44, 44, 44); // #2c2c2c
         
+        // Set text baseline to 'top' to match canvas behavior
+        // This ensures Y positioning is from the top of the text, not the baseline
+        pdf.setTextBaseline('top');
+        
         // Use Poppins font with Helvetica as fallback
         const fontName = window.fontLoader.getFontName('bold');
         const fontStyle = window.fontLoader.getFontStyle('bold');
