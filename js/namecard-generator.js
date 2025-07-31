@@ -1007,6 +1007,9 @@ class NamecardGenerator {
         this.canvas.parentElement.classList.add('loading');
         
         try {
+            // Load Poppins fonts first
+            await window.fontLoader.loadFonts();
+            
             // Create jsPDF instance with exact business card dimensions
             // 86mm x 54mm in points (1 point = 0.352778mm)
             const { jsPDF } = window.jspdf; // v3.x structure
@@ -1020,6 +1023,9 @@ class NamecardGenerator {
                 format: [cardWidth, cardHeight],
                 compress: true
             });
+            
+            // Add Poppins fonts to PDF (with Helvetica as fallback)
+            window.fontLoader.addFontsToPDF(pdf);
             
             // Set PDF metadata for print
             pdf.setProperties({
@@ -1192,11 +1198,15 @@ class NamecardGenerator {
         // Set text color (dark gray)
         pdf.setTextColor(44, 44, 44); // #2c2c2c
         
-        // Try to use Poppins font (fallback to Helvetica)
+        // Use Poppins font with Helvetica as fallback
+        const fontName = window.fontLoader.getFontName('bold');
+        const fontStyle = window.fontLoader.getFontStyle('bold');
+        
         try {
-            pdf.setFont('Poppins', 'bold');
-        } catch (e) {
-            pdf.setFont('Helvetica', 'bold');
+            pdf.setFont(fontName, fontStyle);
+        } catch (error) {
+            console.warn('Poppins font not available, using Helvetica fallback:', error);
+            pdf.setFont('helvetica', 'bold');
         }
         
         // Name (large, bold, right-aligned)
@@ -1213,10 +1223,14 @@ class NamecardGenerator {
         
         // Designation (medium, right-aligned)
         if (data.designation) {
+            const fontName = window.fontLoader.getFontName('semibold');
+            const fontStyle = window.fontLoader.getFontStyle('semibold');
+            
             try {
-                pdf.setFont('Poppins', 'normal');
-            } catch (e) {
-                pdf.setFont('Helvetica', 'normal');
+                pdf.setFont(fontName, fontStyle);
+            } catch (error) {
+                console.warn('Poppins SemiBold font not available, using Helvetica fallback');
+                pdf.setFont('helvetica', 'normal');
             }
             
             pdf.setFontSize(13);
@@ -1229,6 +1243,16 @@ class NamecardGenerator {
         }
         
         // Contact information (smaller, left-aligned)
+        const normalFontName = window.fontLoader.getFontName('normal');
+        const normalFontStyle = window.fontLoader.getFontStyle('normal');
+        
+        try {
+            pdf.setFont(normalFontName, normalFontStyle);
+        } catch (error) {
+            console.warn('Poppins Regular font not available, using Helvetica fallback');
+            pdf.setFont('helvetica', 'normal');
+        }
+        
         pdf.setFontSize(8);
         const iconX = 6;
         const textX = 12; // Move text right to make space for icons
