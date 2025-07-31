@@ -421,7 +421,7 @@ class NamecardGenerator {
         // Email at y=35mm (back to original)
         if (data.email) {
             const emailY = 35 * mmToPx; // 35mm from top = 413px
-            this.drawContactLineWithIconAndText('email', data.email, iconX, textX, emailY, emailY);
+            await this.drawContactLineWithIconAndText('email', data.email, iconX, textX, emailY, emailY);
         }
         
         // Mobile/Office numbers at y=38.5mm (optimal spacing from email)
@@ -432,7 +432,7 @@ class NamecardGenerator {
         if (phoneNumbers.length > 0) {
             const phoneY = 38.5 * mmToPx; // 38.5mm from top = 455px (optimal spacing)
             const phoneText = phoneNumbers.join(' | ');
-            this.drawContactLineWithIconAndText('phone', phoneText, iconX, textX, phoneY, phoneY);
+            await this.drawContactLineWithIconAndText('phone', phoneText, iconX, textX, phoneY, phoneY);
         }
 
         // Address at y=42mm (back to original)
@@ -454,7 +454,7 @@ class NamecardGenerator {
             console.log(`Address lines: ${totalLines}, Icon center Y: ${overallTextCenter}`);
             
             // Draw location icon centered with the overall text
-            this.drawLocationIcon(iconX, overallTextCenter - 15); // -15 because drawLocationIcon expects top Y
+            await this.drawLocationIcon(iconX, overallTextCenter - 15); // -15 because drawLocationIcon expects top Y
             
             // Draw all address lines
             for (let i = 0; i < addressLines.length; i++) {
@@ -576,7 +576,7 @@ class NamecardGenerator {
         this.drawText(text, x + 50, y, '22px Poppins', '#2c2c2c', 'left');
     }
 
-    drawContactLineWithIconAndText(iconType, text, iconX, textX, iconY, textY) {
+    async drawContactLineWithIconAndText(iconType, text, iconX, textX, iconY, textY) {
         // Use same Y for both icon and text if textY not provided (backward compatibility)
         if (textY === undefined) {
             textY = iconY;
@@ -588,52 +588,60 @@ class NamecardGenerator {
         
         // Position icon center to align with text center
         const iconCenterY = textCenterY;
-        const iconTopY = iconCenterY - 15; // Icon circle has 15px radius
         
-        // Draw icon circle background centered with text
-        this.ctx.fillStyle = '#2c2c2c';
-        this.ctx.beginPath();
-        this.ctx.arc(iconX + 15, iconCenterY, 15, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Draw white icon based on type
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '18px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        
-        let iconChar = '';
+        // Draw icon image based on type
+        let iconPath = '';
         switch(iconType) {
             case 'email':
-                iconChar = '✉';
+                iconPath = './email.png';
                 break;
             case 'phone':
-                iconChar = '📞';
+                iconPath = './number.png';
                 break;
             case 'location':
-                iconChar = '📍';
+                iconPath = './location.png';
                 break;
         }
         
-        this.ctx.fillText(iconChar, iconX + 15, iconCenterY);
+        if (iconPath) {
+            await this.drawIconImage(iconPath, iconX + 15, iconCenterY);
+        }
         
         // Draw text at textX position (standard top baseline)
         this.drawText(text, textX, textY, '23px Poppins', '#2c2c2c', 'left');
     }
 
-    drawLocationIcon(iconX, y) {
-        // Draw icon circle background at iconX position
-        this.ctx.fillStyle = '#2c2c2c';
-        this.ctx.beginPath();
-        this.ctx.arc(iconX + 15, y + 15, 15, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // Draw white location icon
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '18px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText('📍', iconX + 15, y + 15);
+    async drawLocationIcon(iconX, y) {
+        // Draw location icon image
+        await this.drawIconImage('./location.png', iconX + 15, y + 15);
+    }
+
+    async drawIconImage(imagePath, centerX, centerY) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                // Draw image centered without any clipping or background
+                const iconSize = 30; // Size of the icon
+                this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
+                resolve();
+            };
+            img.onerror = () => {
+                // Fallback to emoji if image fails to load
+                this.ctx.fillStyle = '#2c2c2c';
+                this.ctx.font = '18px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                let fallbackChar = '?';
+                if (imagePath.includes('email')) fallbackChar = '✉';
+                else if (imagePath.includes('number')) fallbackChar = '📞';
+                else if (imagePath.includes('location')) fallbackChar = '📍';
+                this.ctx.fillText(fallbackChar, centerX, centerY);
+                resolve();
+            };
+            // Set crossOrigin to allow canvas export
+            img.crossOrigin = 'anonymous';
+            img.src = imagePath;
+        });
     }
 
     async drawQRCode() {
@@ -722,6 +730,11 @@ class NamecardGenerator {
         try {
             // Get canvas data as blob with proper DPI
             this.canvas.toBlob((blob) => {
+                if (!blob) {
+                    console.error('Failed to create blob from canvas');
+                    this.showStatus('❌ Download failed. Canvas export error.', 'error');
+                    return;
+                }
                 // Create a new canvas with DPI metadata
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -754,7 +767,20 @@ class NamecardGenerator {
             
         } catch (error) {
             console.error('Download failed:', error);
-            this.showStatus('❌ Download failed. Please try again.', 'error');
+            // Try fallback method using toDataURL
+            try {
+                const dataUrl = this.canvas.toDataURL('image/png', 1.0);
+                const link = document.createElement('a');
+                link.download = `${data.fullName.replace(/\s+/g, '_')}_namecard.png`;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                this.showStatus('💾 Namecard downloaded successfully!', 'success');
+            } catch (fallbackError) {
+                console.error('Fallback download also failed:', fallbackError);
+                this.showStatus('❌ Download failed. Please try again.', 'error');
+            }
         }
     }
 
