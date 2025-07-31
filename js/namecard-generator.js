@@ -1201,8 +1201,9 @@ class NamecardGenerator {
         // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
         const adjustYForBaseline = (y, fontSize) => {
             // jsPDF positions text from baseline, canvas uses 'top'
-            // Add font size (converted to mm) to move text up to match canvas positioning
-            return y + (fontSize * 0.352778); // 0.352778 = points to mm conversion
+            // Current: 0.39" (too low) vs Canva: 0.32" (correct)
+            // Reduce the adjustment to match Canva positioning
+            return y + (fontSize * 0.176389); // Reduced conversion factor (half of 0.352778)
         };
         
         // Use Poppins font with Helvetica as fallback
