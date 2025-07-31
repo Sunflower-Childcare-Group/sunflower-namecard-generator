@@ -40,7 +40,7 @@ class NamecardGenerator {
             if (!dependencyCheck.success && dependencyCheck.error === 'jsPDF library failed to load') {
                 console.warn('jsPDF not loaded on initial check, fallback mechanism should handle it');
             } else if (dependencyCheck.success) {
-                console.log('PDF export is ready');
+                console.log('PDF export is ready - jspdf object available:', window.jspdf);
             }
             
             // Update button visibility
@@ -869,6 +869,9 @@ class NamecardGenerator {
     }
 
     downloadPDF() {
+        console.log('downloadPDF called');
+        console.log('window.jspdf:', window.jspdf);
+        
         const data = this.getFormData();
         const errors = this.validateForm(data);
         
@@ -879,6 +882,8 @@ class NamecardGenerator {
         
         // Check dependencies
         const dependencyCheck = this.checkPDFDependencies();
+        console.log('Dependency check result:', dependencyCheck);
+        
         if (!dependencyCheck.success) {
             // Show error with retry option
             this.showPDFLoadError(dependencyCheck.error);
