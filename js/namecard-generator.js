@@ -1214,7 +1214,7 @@ class NamecardGenerator {
             pdf.setFontSize(18.1); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
             const nameX = 80; // 80mm from left
-            const nameY = 14; // 14mm from top (adjusted for larger font)
+            const nameY = 8; // 8mm from top (match canvas positioning)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
@@ -1236,7 +1236,7 @@ class NamecardGenerator {
             pdf.setFontSize(9.3); // Match Canva font size
             const designationText = data.designation.toUpperCase();
             const designationX = 80; // 80mm from left
-            const designationY = 21; // 21mm from top
+            const designationY = 15; // 15mm from top (match canvas positioning)
             
             const textWidth = pdf.getTextWidth(designationText);
             pdf.text(designationText, designationX - textWidth, designationY);
