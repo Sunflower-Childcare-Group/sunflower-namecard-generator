@@ -1198,9 +1198,12 @@ class NamecardGenerator {
         // Set text color (dark gray)
         pdf.setTextColor(44, 44, 44); // #2c2c2c
         
-        // Set text baseline to 'top' to match canvas behavior
-        // This ensures Y positioning is from the top of the text, not the baseline
-        pdf.setTextBaseline('top');
+        // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
+        const adjustYForBaseline = (y, fontSize) => {
+            // jsPDF positions text from baseline, canvas uses 'top'
+            // Add font size (converted to mm) to move text up to match canvas positioning
+            return y + (fontSize * 0.352778); // 0.352778 = points to mm conversion
+        };
         
         // Use Poppins font with Helvetica as fallback
         const fontName = window.fontLoader.getFontName('bold');
@@ -1215,10 +1218,11 @@ class NamecardGenerator {
         
         // Name (large, bold, right-aligned)
         if (data.fullName) {
-            pdf.setFontSize(18.1); // Match Canva font size
+            const fontSize = 18.1;
+            pdf.setFontSize(fontSize); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
             const nameX = 80; // 80mm from left
-            const nameY = 8; // 8mm from top (match canvas positioning)
+            const nameY = adjustYForBaseline(8, fontSize); // 8mm from top (canvas positioning)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
@@ -1237,10 +1241,11 @@ class NamecardGenerator {
                 pdf.setFont('helvetica', 'normal');
             }
             
-            pdf.setFontSize(9.3); // Match Canva font size
+            const fontSize = 9.3;
+            pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
             const designationX = 80; // 80mm from left
-            const designationY = 15; // 15mm from top (match canvas positioning)
+            const designationY = adjustYForBaseline(15, fontSize); // 15mm from top (canvas positioning)
             
             const textWidth = pdf.getTextWidth(designationText);
             pdf.text(designationText, designationX - textWidth, designationY);
