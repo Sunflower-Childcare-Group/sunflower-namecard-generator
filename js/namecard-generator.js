@@ -1399,22 +1399,32 @@ class NamecardGenerator {
     }
 
     async addContactIcons(pdf, data) {
-        let iconY = 35;
-        const iconX = 8;
-        const iconSize = 3; // 3mm icon size for PDF
+        // Exact positioning to match PNG at 600 DPI
+        const iconCenterX = 6.635; // Exact center X position in mm (matches PNG: 6mm + 15px offset)
+        const iconSize = 2.54; // 60px converted to mm at 600 DPI
         
         if (data.email) {
-            await this.addSVGIconToPDF(pdf, './email.svg', iconX, iconY - 1, iconSize);
-            iconY += 4;
+            // Email icon center at 35.974mm from top (35mm + text height center offset)
+            await this.addSVGIconToPDF(pdf, './email.svg', iconCenterX, 35.974, iconSize);
         }
         
         if (data.mobileNumber || data.officeNumber) {
-            await this.addSVGIconToPDF(pdf, './number.svg', iconX, iconY - 1, iconSize);
-            iconY += 4;
+            // Phone icon center at 39.474mm from top (38.5mm + text height center offset)
+            await this.addSVGIconToPDF(pdf, './number.svg', iconCenterX, 39.474, iconSize);
         }
         
         if (data.officeAddress) {
-            await this.addSVGIconToPDF(pdf, './location.svg', iconX, iconY - 1, iconSize);
+            // Address icon - calculate center based on number of address lines
+            const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== '');
+            const totalLines = addressLines.length;
+            const lineSpacing = 2.54; // 60px ÷ 23.62 = 2.54mm
+            const textHeight = 1.95; // 46px ÷ 23.62 = 1.95mm
+            
+            const firstLineCenter = 42 + (textHeight / 2);
+            const lastLineCenter = 42 + ((totalLines - 1) * lineSpacing) + (textHeight / 2);
+            const overallTextCenter = (firstLineCenter + lastLineCenter) / 2;
+            
+            await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, overallTextCenter, iconSize);
         }
     }
 
