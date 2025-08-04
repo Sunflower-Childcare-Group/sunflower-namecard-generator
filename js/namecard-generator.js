@@ -355,7 +355,7 @@ class NamecardGenerator {
             
             // Use node-qrcode compatible API with ultra-high resolution for professional quality
             const qrDataUrl = await QRCode.toDataURL(vCardData, {
-                width: 1600, // Increased from 800 to 1600 for ultra-sharp QR codes
+                width: 800, // Optimized for 24mm print size at 600 DPI
                 margin: 1,
                 errorCorrectionLevel: 'H', // Highest error correction for better reliability
                 color: {
@@ -1179,8 +1179,8 @@ class NamecardGenerator {
         const highResCanvas = document.createElement('canvas');
         const highResCtx = highResCanvas.getContext('2d');
         
-        // Scale up for good quality (2x resolution for balanced size/quality)
-        const scale = 2;
+        // Scale up for print quality (1.5x resolution for optimal size/quality balance)
+        const scale = 1.5;
         highResCanvas.width = frameWidth * mmToPx * scale;
         highResCanvas.height = frameHeight * mmToPx * scale;
         
