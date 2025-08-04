@@ -493,26 +493,26 @@ class NamecardGenerator {
         const iconX = 6 * mmToPx; // Icons at 6mm from left = 71px
         const textX = 9 * mmToPx + 5; // Text at 9mm from left + 5px mini spacing = 111px
         
-        // Email at y=36.46mm (properly aligned with QR code)
+        // Email at y=35mm (back to original PNG positioning)
         if (data.email) {
-            const emailY = 36.46 * mmToPx; // 36.46mm from top
+            const emailY = 35 * mmToPx; // 35mm from top = 413px
             await this.drawContactLineWithIconAndText('email', data.email, iconX, textX, emailY, emailY);
         }
         
-        // Mobile/Office numbers at y=39.96mm (maintaining 3.5mm spacing)
+        // Mobile/Office numbers at y=38.5mm (optimal spacing from email)
         const phoneNumbers = [];
         if (data.mobileNumber) phoneNumbers.push(data.mobileNumber);
         if (data.officeNumber) phoneNumbers.push(data.officeNumber);
         
         if (phoneNumbers.length > 0) {
-            const phoneY = 39.96 * mmToPx; // 39.96mm from top (maintaining 3.5mm spacing)
+            const phoneY = 38.5 * mmToPx; // 38.5mm from top = 455px (optimal spacing)
             const phoneText = phoneNumbers.join(' | ');
             await this.drawContactLineWithIconAndText('phone', phoneText, iconX, textX, phoneY, phoneY);
         }
 
-        // Address at y=43.46mm (2nd line aligns with QR code bottom)
+        // Address at y=42mm (back to original PNG positioning)
         if (data.officeAddress) {
-            const addressY = 43.46 * mmToPx; // 43.46mm from top (2nd line at 46mm = QR bottom)
+            const addressY = 42 * mmToPx; // 42mm from top = 496px
             const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== ''); // Remove empty lines
             
             // Calculate middle position for icon based on number of lines
