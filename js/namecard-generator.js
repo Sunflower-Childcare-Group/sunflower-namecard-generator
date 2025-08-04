@@ -1097,7 +1097,13 @@ class NamecardGenerator {
             });
             
             // Force set producer again after other operations (jsPDF sometimes overrides)
-            pdf.internal.metadata.producer = 'Sunflower Childcare Group Business Card Generator';
+            try {
+                pdf.setProperties({
+                    producer: 'Sunflower Childcare Group Business Card Generator'
+                });
+            } catch (error) {
+                console.warn('Could not override PDF producer:', error);
+            }
             
             // Add custom metadata for print specifications
             pdf.setDocumentProperties({
