@@ -720,6 +720,10 @@ class NamecardGenerator {
                         // Save current canvas state
                         this.ctx.save();
                         
+                        // Enable high-quality rendering for PNG export too
+                        this.ctx.imageSmoothingEnabled = true;
+                        this.ctx.imageSmoothingQuality = 'high';
+                        
                         // Try different rendering approaches for better PDF compatibility
                         try {
                             // Method 1: Direct drawing with multiply blend mode
@@ -1333,8 +1337,10 @@ class NamecardGenerator {
         }
         
         pdf.setFontSize(5.7); // Match Canva font size
-        const iconX = 6;
-        const textX = 9.42; // Match canvas: 9mm + 5px = 9.42mm (to match canvas textX)
+        
+        // Exact PNG text positioning: 9mm + 5px
+        // At 600 DPI: 5px ÷ 23.62 = 0.212mm
+        const textX = 9 + 0.212; // 9.212mm (exact match to PNG)
         
         let currentY = 35;
         
@@ -1438,11 +1444,15 @@ class NamecardGenerator {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // High resolution for PDF quality
-            const scale = 4;
-            const pixelSize = size * 23.62 * scale; // Convert mm to pixels at high res
+            // Ultra-high resolution for PDF quality (10x scale for crisp vector rendering)
+            const scale = 10;
+            const pixelSize = size * 23.62 * scale; // Convert mm to pixels at ultra-high res
             canvas.width = pixelSize;
             canvas.height = pixelSize;
+            
+            // Enable high-quality rendering
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             
             // Create image from SVG data
             const encodedSvg = encodeURIComponent(svgText);
@@ -1457,8 +1467,8 @@ class NamecardGenerator {
                     // Draw SVG to canvas
                     ctx.drawImage(img, 0, 0, pixelSize, pixelSize);
                     
-                    // Convert canvas to image data for PDF
-                    const imageData = canvas.toDataURL('image/png');
+                    // Convert canvas to high-quality image data for PDF
+                    const imageData = canvas.toDataURL('image/png', 1.0); // Maximum quality
                     
                     // Add to PDF
                     pdf.addImage(imageData, 'PNG', x - size/2, y - size/2, size, size);
