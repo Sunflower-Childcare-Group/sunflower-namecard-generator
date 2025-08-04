@@ -1023,11 +1023,7 @@ class NamecardGenerator {
 
         this.showStatus(`${errorMessage}\n\n💡 ${suggestion}`, 'error');
 
-        // Log detailed error for debugging
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
+        // Error handled silently
     }
 
     async generatePDF(data) {
