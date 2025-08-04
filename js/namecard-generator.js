@@ -1047,7 +1047,8 @@ class NamecardGenerator {
                 format: [cardWidth, cardHeight],
                 compress: true, // Enable compression for reduced file size
                 putOnlyUsedFonts: true, // Only embed fonts that are actually used
-                floatPrecision: 8 // Balanced precision for optimal file size
+                floatPrecision: 8, // Balanced precision for optimal file size
+                colorSpace: 'cmyk' // Enable CMYK color space
             });
             
             // Add Poppins fonts to PDF (with Helvetica as fallback)
@@ -1142,8 +1143,8 @@ class NamecardGenerator {
     async renderVectorPDF(pdf, data, cardWidth, cardHeight) {
         // Note: PDF uses mm units directly, no conversion needed for positioning
         
-        // Set background color (Sunflower Yellow - RGB that converts to CMYK 0,20,100,0)
-        pdf.setFillColor(255, 204, 0); // #FFCC00 - Print shops will convert to CMYK(0,20,100,0)
+        // Set background color (Sunflower Yellow in true CMYK)
+        pdf.setFillColor(0.0, 0.2, 1.0, 0.0); // CMYK: C=0%, M=20%, Y=100%, K=0%
         pdf.rect(0, 0, cardWidth, cardHeight, 'F');
         
         // Add profile image at high quality
@@ -1233,8 +1234,8 @@ class NamecardGenerator {
     }
 
     addVectorText(pdf, data) {
-        // Set text color (dark gray - RGB that converts to CMYK 0,0,0,83)
-        pdf.setTextColor(44, 44, 44); // #2c2c2c - Print shops will convert to CMYK(0,0,0,83)
+        // Set text color (dark gray in true CMYK)
+        pdf.setTextColor(0.0, 0.0, 0.0, 0.83); // CMYK: C=0%, M=0%, Y=0%, K=83%
         
         // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
         const adjustYForBaseline = (y, fontSize) => {
