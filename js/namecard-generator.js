@@ -704,43 +704,44 @@ class NamecardGenerator {
     async drawIconImage(imagePath, centerX, centerY) {
         return new Promise(async (resolve) => {
             try {
-                // For SVG files, load and convert to data URL to ensure proper rendering
+                // For SVG files, use enhanced rendering approach
                 if (imagePath.endsWith('.svg')) {
                     const response = await fetch(imagePath);
                     let svgText = await response.text();
                     
-                    // Convert SVG to data URL
-                    const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
-                    const svgUrl = URL.createObjectURL(svgBlob);
+                    // Create data URL with proper encoding
+                    const encodedSvg = encodeURIComponent(svgText);
+                    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
                     
                     const img = new Image();
                     img.onload = () => {
-                        // Create a temporary canvas to draw the SVG with proper transparency
-                        const tempCanvas = document.createElement('canvas');
                         const iconSize = 60; // Size of the icon (doubled for 600 DPI)
-                        tempCanvas.width = iconSize;
-                        tempCanvas.height = iconSize;
-                        const tempCtx = tempCanvas.getContext('2d');
                         
-                        // Clear with transparent background
-                        tempCtx.clearRect(0, 0, iconSize, iconSize);
+                        // Save current canvas state
+                        this.ctx.save();
                         
-                        // Draw SVG to temp canvas
-                        tempCtx.drawImage(img, 0, 0, iconSize, iconSize);
+                        // Try different rendering approaches for better PDF compatibility
+                        try {
+                            // Method 1: Direct drawing with multiply blend mode
+                            this.ctx.globalCompositeOperation = 'multiply';
+                            this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
+                        } catch (error) {
+                            // Method 2: Fallback to normal rendering
+                            this.ctx.globalCompositeOperation = 'source-over';
+                            this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
+                        }
                         
-                        // Draw the temp canvas to main canvas with proper compositing
-                        this.ctx.drawImage(tempCanvas, centerX - iconSize/2, centerY - iconSize/2);
-                        
-                        // Clean up
-                        URL.revokeObjectURL(svgUrl);
+                        // Restore canvas state
+                        this.ctx.restore();
                         resolve();
                     };
                     img.onerror = () => {
-                        URL.revokeObjectURL(svgUrl);
+                        console.log('SVG failed to load, trying fallback');
                         this.drawFallbackIcon(imagePath, centerX, centerY);
                         resolve();
                     };
-                    img.src = svgUrl;
+                    img.crossOrigin = 'anonymous';
+                    img.src = dataUrl;
                 } else {
                     // Handle regular image files (PNG, etc.)
                     const img = new Image();
