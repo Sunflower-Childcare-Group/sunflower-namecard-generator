@@ -1399,28 +1399,76 @@ class NamecardGenerator {
     }
 
     async addContactIcons(pdf, data) {
-        // For now, we'll skip the icons to focus on text quality
-        // Icons would need to be vectorized or provided as high-res images
-        
-        // Add simple colored circles as placeholders
-        pdf.setFillColor(44, 44, 44); // Dark gray
-        
         let iconY = 35;
         const iconX = 8;
-        const iconRadius = 1.5;
+        const iconSize = 3; // 3mm icon size for PDF
         
         if (data.email) {
-            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+            await this.addSVGIconToPDF(pdf, './email.svg', iconX, iconY - 1, iconSize);
             iconY += 4;
         }
         
         if (data.mobileNumber || data.officeNumber) {
-            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+            await this.addSVGIconToPDF(pdf, './number.svg', iconX, iconY - 1, iconSize);
             iconY += 4;
         }
         
         if (data.officeAddress) {
-            pdf.circle(iconX, iconY - 1, iconRadius, 'F');
+            await this.addSVGIconToPDF(pdf, './location.svg', iconX, iconY - 1, iconSize);
+        }
+    }
+
+    async addSVGIconToPDF(pdf, iconPath, x, y, size) {
+        try {
+            // Fetch the SVG content
+            const response = await fetch(iconPath);
+            const svgText = await response.text();
+            
+            // Create a temporary canvas to render the SVG
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // High resolution for PDF quality
+            const scale = 4;
+            const pixelSize = size * 23.62 * scale; // Convert mm to pixels at high res
+            canvas.width = pixelSize;
+            canvas.height = pixelSize;
+            
+            // Create image from SVG data
+            const encodedSvg = encodeURIComponent(svgText);
+            const dataUrl = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
+            
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    // Clear canvas with transparent background
+                    ctx.clearRect(0, 0, pixelSize, pixelSize);
+                    
+                    // Draw SVG to canvas
+                    ctx.drawImage(img, 0, 0, pixelSize, pixelSize);
+                    
+                    // Convert canvas to image data for PDF
+                    const imageData = canvas.toDataURL('image/png');
+                    
+                    // Add to PDF
+                    pdf.addImage(imageData, 'PNG', x - size/2, y - size/2, size, size);
+                    
+                    resolve();
+                };
+                img.onerror = () => {
+                    // Fallback to simple circle if SVG fails
+                    pdf.setFillColor(44, 44, 44);
+                    pdf.circle(x, y, size/2, 'F');
+                    resolve();
+                };
+                img.crossOrigin = 'anonymous';
+                img.src = dataUrl;
+            });
+        } catch (error) {
+            console.error('Error adding SVG icon to PDF:', error);
+            // Fallback to simple circle
+            pdf.setFillColor(44, 44, 44);
+            pdf.circle(x, y, size/2, 'F');
         }
     }
 
