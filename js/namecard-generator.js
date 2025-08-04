@@ -702,31 +702,80 @@ class NamecardGenerator {
     }
 
     async drawIconImage(imagePath, centerX, centerY) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                // Draw image centered without any clipping or background
-                const iconSize = 60; // Size of the icon (doubled for 600 DPI)
-                this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
+        return new Promise(async (resolve) => {
+            try {
+                // For SVG files, load and convert to data URL to ensure proper rendering
+                if (imagePath.endsWith('.svg')) {
+                    const response = await fetch(imagePath);
+                    let svgText = await response.text();
+                    
+                    // Convert SVG to data URL
+                    const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+                    const svgUrl = URL.createObjectURL(svgBlob);
+                    
+                    const img = new Image();
+                    img.onload = () => {
+                        // Create a temporary canvas to draw the SVG with proper transparency
+                        const tempCanvas = document.createElement('canvas');
+                        const iconSize = 60; // Size of the icon (doubled for 600 DPI)
+                        tempCanvas.width = iconSize;
+                        tempCanvas.height = iconSize;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        
+                        // Clear with transparent background
+                        tempCtx.clearRect(0, 0, iconSize, iconSize);
+                        
+                        // Draw SVG to temp canvas
+                        tempCtx.drawImage(img, 0, 0, iconSize, iconSize);
+                        
+                        // Draw the temp canvas to main canvas with proper compositing
+                        this.ctx.drawImage(tempCanvas, centerX - iconSize/2, centerY - iconSize/2);
+                        
+                        // Clean up
+                        URL.revokeObjectURL(svgUrl);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(svgUrl);
+                        this.drawFallbackIcon(imagePath, centerX, centerY);
+                        resolve();
+                    };
+                    img.src = svgUrl;
+                } else {
+                    // Handle regular image files (PNG, etc.)
+                    const img = new Image();
+                    img.onload = () => {
+                        const iconSize = 60; // Size of the icon (doubled for 600 DPI)
+                        this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        this.drawFallbackIcon(imagePath, centerX, centerY);
+                        resolve();
+                    };
+                    // Set crossOrigin to allow canvas export
+                    img.crossOrigin = 'anonymous';
+                    img.src = imagePath;
+                }
+            } catch (error) {
+                console.error('Error loading icon:', error);
+                this.drawFallbackIcon(imagePath, centerX, centerY);
                 resolve();
-            };
-            img.onerror = () => {
-                // Fallback to emoji if image fails to load
-                this.ctx.fillStyle = '#2c2c2c';
-                this.ctx.font = '18px Arial';
-                this.ctx.textAlign = 'center';
-                this.ctx.textBaseline = 'middle';
-                let fallbackChar = '?';
-                if (imagePath.includes('email')) fallbackChar = '✉';
-                else if (imagePath.includes('number')) fallbackChar = '📞';
-                else if (imagePath.includes('location')) fallbackChar = '📍';
-                this.ctx.fillText(fallbackChar, centerX, centerY);
-                resolve();
-            };
-            // Set crossOrigin to allow canvas export
-            img.crossOrigin = 'anonymous';
-            img.src = imagePath;
+            }
         });
+    }
+
+    drawFallbackIcon(imagePath, centerX, centerY) {
+        // Fallback to emoji if image fails to load
+        this.ctx.fillStyle = '#2c2c2c';
+        this.ctx.font = '36px Arial'; // Increased size for 600 DPI
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        let fallbackChar = '?';
+        if (imagePath.includes('email')) fallbackChar = '✉';
+        else if (imagePath.includes('number')) fallbackChar = '📞';
+        else if (imagePath.includes('location')) fallbackChar = '📍';
+        this.ctx.fillText(fallbackChar, centerX, centerY);
     }
 
     async drawQRCode() {
