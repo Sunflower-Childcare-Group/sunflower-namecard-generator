@@ -39,9 +39,7 @@ class NamecardGenerator {
         setTimeout(() => {
             const dependencyCheck = this.checkPDFDependencies();
             if (!dependencyCheck.success && dependencyCheck.error === 'jsPDF library failed to load') {
-                console.warn('jsPDF not loaded on initial check, fallback mechanism should handle it');
             } else if (dependencyCheck.success) {
-                console.log('PDF export is ready');
             }
             
             // Update button visibility
@@ -282,7 +280,6 @@ class NamecardGenerator {
         try {
             await this.renderNamecard(data);
         } catch (error) {
-            console.error('Error in instant preview update:', error);
         }
     }
 
@@ -290,7 +287,6 @@ class NamecardGenerator {
     async generateVCardQR(data) {
         // Check if QRCode library is available
         if (typeof QRCode === 'undefined') {
-            console.error('QRCode library is not loaded');
             this.qrCodeDataUrl = null;
             return null;
         }
@@ -356,7 +352,6 @@ class NamecardGenerator {
         const vCardData = vCardFields.join('\r\n');
 
         try {
-            console.log('QRCode library available, generating QR code with data:', vCardData);
             
             // Use node-qrcode compatible API with ultra-high resolution for professional quality
             const qrDataUrl = await QRCode.toDataURL(vCardData, {
@@ -370,11 +365,9 @@ class NamecardGenerator {
             });
             
             this.qrCodeDataUrl = qrDataUrl;
-            console.log('QR code generated successfully');
             return qrDataUrl;
             
         } catch (error) {
-            console.error('QR Code generation failed:', error);
             this.qrCodeDataUrl = null;
             return null;
         }
@@ -441,7 +434,6 @@ class NamecardGenerator {
         try {
             await this.renderNamecard(data);
         } catch (error) {
-            console.error('Error updating preview:', error);
             // Still show what we can render
         } finally {
             this.isRendering = false;
@@ -467,10 +459,8 @@ class NamecardGenerator {
                 if (this.qrCodeDataUrl) {
                     await this.drawQRCode();
                     qrGenerated = true;
-                    console.log('QR code drawn successfully');
                 }
             } catch (error) {
-                console.error('QR code generation/drawing failed:', error);
             }
         }
 
@@ -536,7 +526,6 @@ class NamecardGenerator {
             const overallTextCenter = (firstLineCenter + lastLineCenter) / 2;
             
             // Debug log for icon positioning
-            console.log(`Address lines: ${totalLines}, Icon center Y: ${overallTextCenter}`);
             
             // Draw location icon centered with the overall text
             await this.drawLocationIcon(iconX, overallTextCenter - 15); // -15 because drawLocationIcon expects top Y
@@ -550,7 +539,6 @@ class NamecardGenerator {
 
         // Debug info
         if (!qrGenerated && data.fullName && data.designation && data.company && data.email && data.officeNumber && data.officeAddress) {
-            console.log('QR code should have been generated but failed');
         }
     }
 
@@ -740,7 +728,6 @@ class NamecardGenerator {
                         resolve();
                     };
                     img.onerror = () => {
-                        console.log('SVG failed to load, trying fallback');
                         this.drawFallbackIcon(imagePath, centerX, centerY);
                         resolve();
                     };
@@ -763,7 +750,6 @@ class NamecardGenerator {
                     img.src = imagePath;
                 }
             } catch (error) {
-                console.error('Error loading icon:', error);
                 this.drawFallbackIcon(imagePath, centerX, centerY);
                 resolve();
             }
@@ -785,7 +771,6 @@ class NamecardGenerator {
 
     async drawQRCode() {
         if (!this.qrCodeDataUrl) {
-            console.log('No QR code data available');
             return;
         }
 
@@ -801,7 +786,6 @@ class NamecardGenerator {
             
             qrImg.onload = () => {
                 try {
-                    console.log(`Drawing QR code at position (${x}, ${y}) with size ${qrSize}x${qrSize}`);
                     
                     // Draw white background for QR code
                     this.ctx.fillStyle = '#FFFFFF';
@@ -810,16 +794,13 @@ class NamecardGenerator {
                     // Draw QR code
                     this.ctx.drawImage(qrImg, x, y, qrSize, qrSize);
                     
-                    console.log('QR code image drawn successfully');
                     resolve();
                 } catch (error) {
-                    console.error('Error drawing QR code:', error);
                     reject(error);
                 }
             };
             
             qrImg.onerror = (error) => {
-                console.error('Failed to load QR code image:', error);
                 reject(error);
             };
             
@@ -827,7 +808,6 @@ class NamecardGenerator {
             qrImg.crossOrigin = 'anonymous';
             qrImg.src = this.qrCodeDataUrl;
             
-            console.log('QR image src set, waiting for load...');
         });
     }
 
@@ -850,7 +830,6 @@ class NamecardGenerator {
             this.saveToLocalStorage();
             this.showStatus('✅ Namecard generated successfully!', 'success');
         } catch (error) {
-            console.error('Generation failed:', error);
             this.showStatus('❌ Failed to generate namecard. Please try again.', 'error');
         } finally {
             this.canvas.parentElement.classList.remove('loading');
@@ -870,7 +849,6 @@ class NamecardGenerator {
             // Get canvas data as blob with proper DPI
             this.canvas.toBlob((blob) => {
                 if (!blob) {
-                    console.error('Failed to create blob from canvas');
                     this.showStatus('❌ Download failed. Canvas export error.', 'error');
                     return;
                 }
@@ -905,7 +883,6 @@ class NamecardGenerator {
             }, 'image/png', 1.0);
             
         } catch (error) {
-            console.error('Download failed:', error);
             // Try fallback method using toDataURL
             try {
                 const dataUrl = this.canvas.toDataURL('image/png', 1.0);
@@ -917,7 +894,6 @@ class NamecardGenerator {
                 document.body.removeChild(link);
                 this.showStatus('💾 Namecard downloaded successfully!', 'success');
             } catch (fallbackError) {
-                console.error('Fallback download also failed:', fallbackError);
                 this.showStatus('❌ Download failed. Please try again.', 'error');
             }
         }
@@ -946,7 +922,6 @@ class NamecardGenerator {
         try {
             this.generatePDF(data);
         } catch (error) {
-            console.error('PDF generation failed:', error);
             this.handlePDFError(error);
         }
     }
@@ -1015,7 +990,6 @@ class NamecardGenerator {
 
         // Check if color converter is available
         if (typeof window.colorConverter === 'undefined') {
-            console.warn('Color converter not available - using basic color handling');
         }
 
         // Check browser capabilities
@@ -1050,7 +1024,6 @@ class NamecardGenerator {
         this.showStatus(`${errorMessage}\n\n💡 ${suggestion}`, 'error');
 
         // Log detailed error for debugging
-        console.error('Detailed PDF error:', {
             name: error.name,
             message: error.message,
             stack: error.stack
@@ -1076,14 +1049,13 @@ class NamecardGenerator {
                 orientation: 'landscape',
                 unit: 'mm',
                 format: [cardWidth, cardHeight],
-                compress: false, // Disable compression for maximum quality
+                compress: true, // Enable compression for reduced file size
                 putOnlyUsedFonts: true, // Only embed fonts that are actually used
-                floatPrecision: 16 // Higher precision for better rendering
+                floatPrecision: 8 // Balanced precision for optimal file size
             });
             
             // Add Poppins fonts to PDF (with Helvetica as fallback)
-            const fontsAdded = window.fontLoader.addFontsToPDF(pdf);
-            console.log('Fonts embedded:', fontsAdded);
+            window.fontLoader.addFontsToPDF(pdf);
             
             // Set comprehensive PDF metadata for print
             pdf.setProperties({
@@ -1127,7 +1099,6 @@ class NamecardGenerator {
             this.showStatus('📄 Print-ready PDF downloaded successfully!', 'success');
             
         } catch (error) {
-            console.error('PDF generation error:', error);
             this.showStatus('❌ PDF generation failed. Please try again or use PNG download.', 'error');
         } finally {
             // Remove loading state
@@ -1290,7 +1261,6 @@ class NamecardGenerator {
         try {
             pdf.setFont(fontName, fontStyle);
         } catch (error) {
-            console.warn('Poppins font not available, using Helvetica fallback:', error);
             pdf.setFont('helvetica', 'bold');
         }
         
@@ -1314,8 +1284,7 @@ class NamecardGenerator {
             try {
                 pdf.setFont(fontName, fontStyle);
             } catch (error) {
-                console.warn('Poppins Regular font not available, using Helvetica fallback');
-                pdf.setFont('helvetica', 'normal');
+                    pdf.setFont('helvetica', 'normal');
             }
             
             const fontSize = 9.3;
@@ -1335,7 +1304,6 @@ class NamecardGenerator {
         try {
             pdf.setFont(normalFontName, normalFontStyle);
         } catch (error) {
-            console.warn('Poppins Regular font not available, using Helvetica fallback');
             pdf.setFont('helvetica', 'normal');
         }
         
@@ -1447,8 +1415,8 @@ class NamecardGenerator {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Ultra-high resolution for PDF quality (10x scale for crisp vector rendering)
-            const scale = 10;
+            // High resolution for PDF quality (6x scale for optimal size/quality balance)
+            const scale = 6;
             const pixelSize = size * 23.62 * scale; // Convert mm to pixels at ultra-high res
             canvas.width = pixelSize;
             canvas.height = pixelSize;
@@ -1488,7 +1456,6 @@ class NamecardGenerator {
                 img.src = dataUrl;
             });
         } catch (error) {
-            console.error('Error adding SVG icon to PDF:', error);
             // Fallback to simple circle
             pdf.setFillColor(44, 44, 44);
             pdf.circle(x, y, size/2, 'F');
@@ -1537,7 +1504,6 @@ class NamecardGenerator {
         }
         
         if (idatPos === -1) {
-            console.warn('Could not find IDAT chunk, returning original PNG');
             return pngData;
         }
         
@@ -1636,7 +1602,6 @@ class NamecardGenerator {
                 }
             }
         } catch (error) {
-            console.error('Error loading saved data:', error);
             this.clearLocalStorage();
         }
     }
@@ -1651,7 +1616,6 @@ async function loadPoppinsFont() {
     try {
         // Check if Poppins is already loaded
         if (document.fonts.check('16px Poppins')) {
-            console.log('Poppins font already available');
             return;
         }
         
@@ -1661,9 +1625,7 @@ async function loadPoppinsFont() {
         // Give it a moment to ensure fonts are ready
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        console.log('Fonts loaded successfully');
     } catch (error) {
-        console.warn('Font loading had issues, but continuing:', error);
     }
 }
 
@@ -1671,7 +1633,6 @@ async function loadPoppinsFont() {
 function waitForQRCode() {
     return new Promise((resolve) => {
         if (typeof QRCode !== 'undefined') {
-            console.log('QRCode library is available');
             resolve();
             return;
         }
@@ -1679,7 +1640,6 @@ function waitForQRCode() {
         // Poll every 100ms until QRCode is available
         const interval = setInterval(() => {
             if (typeof QRCode !== 'undefined') {
-                console.log('QRCode library loaded successfully');
                 clearInterval(interval);
                 resolve();
             }
@@ -1688,7 +1648,6 @@ function waitForQRCode() {
         // Timeout after 10 seconds
         setTimeout(() => {
             clearInterval(interval);
-            console.error('QRCode library failed to load within 10 seconds');
             resolve(); // Continue anyway
         }, 10000);
     });
@@ -1696,7 +1655,6 @@ function waitForQRCode() {
 
 // Initialize the application when everything is loaded
 window.addEventListener('load', async () => {
-    console.log('Window loaded, initializing namecard generator...');
     
     // Wait for QRCode library to load
     await waitForQRCode();
@@ -1705,7 +1663,6 @@ window.addEventListener('load', async () => {
     await loadPoppinsFont();
     
     // Initialize the namecard generator and store globally
-    console.log('Initializing NamecardGenerator...');
     window.namecardGenerator = new NamecardGenerator();
 });
 
@@ -1717,7 +1674,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; // Already initialized
         }
         
-        console.log('DOMContentLoaded fallback, initializing namecard generator...');
         
         // Wait for QRCode library to load
         await waitForQRCode();
@@ -1726,7 +1682,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadPoppinsFont();
         
         // Initialize the namecard generator and store globally
-        console.log('Initializing NamecardGenerator (fallback)...');
         window.namecardGenerator = new NamecardGenerator();
     }, 2000);
 });

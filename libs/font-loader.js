@@ -29,7 +29,6 @@ class FontLoader {
             }
             return btoa(binaryString);
         } catch (error) {
-            console.error(`Error converting font to Base64: ${fontPath}`, error);
             return null;
         }
     }
@@ -40,7 +39,6 @@ class FontLoader {
     async loadFonts() {
         if (this.loaded) return true;
 
-        console.log('📥 Loading Poppins fonts for PDF embedding...');
 
         try {
             // Load only Regular and Bold font variants
@@ -64,15 +62,11 @@ class FontLoader {
             // Check if at least regular font loaded
             if (this.fonts['Poppins-Regular']) {
                 this.loaded = true;
-                console.log(`✅ Poppins fonts loaded successfully! (${loadedCount}/3 fonts available for PDF embedding)`);
                 return true;
             } else {
-                console.warn('⚠️ Failed to load Poppins Regular font, will fallback to Helvetica');
-                console.log(`Loaded fonts: Regular: ${!!regular}, SemiBold: ${!!semibold}, Bold: ${!!bold}`);
                 return false;
             }
         } catch (error) {
-            console.error('❌ Error loading Poppins fonts:', error);
             return false;
         }
     }
@@ -91,9 +85,7 @@ class FontLoader {
                 pdf.addFileToVFS('Poppins-Regular.ttf', this.fonts['Poppins-Regular']);
                 pdf.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
                 embeddedFonts.push('Poppins-Regular');
-                console.log('✅ Embedded Poppins-Regular font');
             } else {
-                console.warn('❌ Poppins-Regular font not available for embedding');
             }
 
             // Add Bold font  
@@ -101,15 +93,11 @@ class FontLoader {
                 pdf.addFileToVFS('Poppins-Bold.ttf', this.fonts['Poppins-Bold']);
                 pdf.addFont('Poppins-Bold.ttf', 'Poppins', 'bold');
                 embeddedFonts.push('Poppins-Bold');
-                console.log('✅ Embedded Poppins-Bold font');
             } else {
-                console.warn('❌ Poppins-Bold font not available for embedding');
             }
 
-            console.log(`✅ ${embeddedFonts.length} Poppins fonts embedded:`, embeddedFonts);
             return true;
         } catch (error) {
-            console.error('❌ Error adding fonts to PDF:', error);
             return false;
         }
     }
