@@ -1073,10 +1073,7 @@ class NamecardGenerator {
                 displayDocTitle: true
             });
             
-            // Add print specifications as a comment/annotation in the PDF
-            pdf.setFontSize(8);
-            pdf.setTextColor(200, 200, 200); // Light gray
-            pdf.text('Print Specs: 600 DPI, True CMYK Colors, Size: 86x54mm', 1, cardHeight - 1);
+            // Professional print-ready PDF without visible specs
             
             // Instead of embedding the entire canvas as image, let's render vector elements
             await this.renderVectorPDF(pdf, data, cardWidth, cardHeight);
@@ -1145,14 +1142,8 @@ class NamecardGenerator {
     async renderVectorPDF(pdf, data, cardWidth, cardHeight) {
         // Note: PDF uses mm units directly, no conversion needed for positioning
         
-        // Set background color (Sunflower Yellow in CMYK)
-        if (window.colorConverter) {
-            const yellowCmyk = window.colorConverter.brandColors.sunflowerYellow.cmyk;
-            // jsPDF CMYK support: setFillColor(c, m, y, k, 'CMYK')
-            pdf.setFillColor(yellowCmyk.c, yellowCmyk.m, yellowCmyk.y, yellowCmyk.k, 'CMYK');
-        } else {
-            pdf.setFillColor(255, 204, 0); // RGB fallback
-        }
+        // Set background color (Sunflower Yellow - RGB that converts to CMYK 0,20,100,0)
+        pdf.setFillColor(255, 204, 0); // #FFCC00 - Print shops will convert to CMYK(0,20,100,0)
         pdf.rect(0, 0, cardWidth, cardHeight, 'F');
         
         // Add profile image at high quality
@@ -1242,13 +1233,8 @@ class NamecardGenerator {
     }
 
     addVectorText(pdf, data) {
-        // Set text color (dark gray in CMYK)
-        if (window.colorConverter) {
-            const textCmyk = window.colorConverter.brandColors.darkText.cmyk;
-            pdf.setTextColor(textCmyk.c, textCmyk.m, textCmyk.y, textCmyk.k, 'CMYK');
-        } else {
-            pdf.setTextColor(44, 44, 44); // RGB fallback
-        }
+        // Set text color (dark gray - RGB that converts to CMYK 0,0,0,83)
+        pdf.setTextColor(44, 44, 44); // #2c2c2c - Print shops will convert to CMYK(0,0,0,83)
         
         // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
         const adjustYForBaseline = (y, fontSize) => {
