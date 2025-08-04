@@ -9,9 +9,10 @@ class NamecardGenerator {
         this.statusMessage = document.getElementById('statusMessage');
         this.modal = document.getElementById('instructionsModal');
         
-        // Canvas dimensions: 86mm x 54mm at 300 DPI
-        this.canvasWidth = 1016;
-        this.canvasHeight = 638;
+        // Canvas dimensions: 86mm x 54mm at 600 DPI for ultra-high quality
+        // Original: 300 DPI = 1016x638, now 600 DPI = 2032x1276
+        this.canvasWidth = 2032;
+        this.canvasHeight = 1276;
         
         this.uploadedImage = null;
         this.qrCodeDataUrl = null;
@@ -357,11 +358,11 @@ class NamecardGenerator {
         try {
             console.log('QRCode library available, generating QR code with data:', vCardData);
             
-            // Use node-qrcode compatible API with larger size for better quality
+            // Use node-qrcode compatible API with ultra-high resolution for professional quality
             const qrDataUrl = await QRCode.toDataURL(vCardData, {
-                width: 800,
+                width: 1600, // Increased from 800 to 1600 for ultra-sharp QR codes
                 margin: 1,
-                errorCorrectionLevel: 'M',
+                errorCorrectionLevel: 'H', // Highest error correction for better reliability
                 color: {
                     dark: '#000000',
                     light: '#FFFFFF'
@@ -455,8 +456,8 @@ class NamecardGenerator {
         this.ctx.fillStyle = '#FFCC00';
         this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
-        // At 300 DPI: 1mm = 11.81 pixels (used throughout this function)
-        const mmToPx = 11.81;
+        // At 600 DPI: 1mm = 23.62 pixels (doubled from 300 DPI)
+        const mmToPx = 23.62;
 
         // Generate and draw QR code first if we have enough data
         let qrGenerated = false;
@@ -486,16 +487,16 @@ class NamecardGenerator {
         
         // Name at y=8mm
         if (data.fullName) {
-            const nameY = 8 * mmToPx; // 8mm from top = 94px
+            const nameY = 8 * mmToPx; // 8mm from top
             const nameText = data.fullName.toUpperCase();
-            this.drawText(nameText, nameX, nameY, 'bold 72px Poppins', '#2c2c2c', 'right');
+            this.drawText(nameText, nameX, nameY, 'bold 144px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
 
         // Designation at y=15mm
         if (data.designation) {
-            const designationY = 15 * mmToPx; // 15mm from top = 177px
+            const designationY = 15 * mmToPx; // 15mm from top
             const designationText = data.designation.toUpperCase();
-            this.drawText(designationText, nameX, designationY, '37px Poppins', '#2c2c2c', 'right');
+            this.drawText(designationText, nameX, designationY, '74px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
 
         // Draw contact information at exact positions
@@ -526,8 +527,8 @@ class NamecardGenerator {
             
             // Calculate middle position for icon based on number of lines
             const totalLines = addressLines.length;
-            const lineSpacing = 30; // 30px spacing between lines
-            const textHeight = 23; // 23px font size (increased by 1)
+            const lineSpacing = 60; // 60px spacing between lines (doubled for 600 DPI)
+            const textHeight = 46; // 46px font size (doubled for 600 DPI)
             
             // Find the middle of all address text lines
             const firstLineCenter = addressY + (textHeight / 2);
@@ -543,7 +544,7 @@ class NamecardGenerator {
             // Draw all address lines
             for (let i = 0; i < addressLines.length; i++) {
                 const lineY = addressY + (i * lineSpacing);
-                this.drawText(addressLines[i], textX, lineY, '23px Poppins', '#2c2c2c', 'left');
+                this.drawText(addressLines[i], textX, lineY, '46px Poppins', '#2c2c2c', 'left'); // Doubled font size for 600 DPI
             }
         }
 
@@ -555,11 +556,11 @@ class NamecardGenerator {
 
     drawImageFrame() {
         // Draw grey background to show exact image frame boundaries
-        const mmToPx = 11.81;
-        const frameX = 6 * mmToPx; // 6mm from left = 71px
-        const frameY = 7 * mmToPx; // 7mm from top = 83px
-        const frameWidth = 20 * mmToPx; // 20mm width = 236px
-        const frameHeight = 24 * mmToPx; // 24mm height = 283px
+        const mmToPx = 23.62; // 600 DPI conversion
+        const frameX = 6 * mmToPx; // 6mm from left
+        const frameY = 7 * mmToPx; // 7mm from top
+        const frameWidth = 20 * mmToPx; // 20mm width
+        const frameHeight = 24 * mmToPx; // 24mm height
 
         this.ctx.save();
         this.ctx.fillStyle = '#d6d6d6'; // Light grey background
@@ -570,13 +571,13 @@ class NamecardGenerator {
     drawProfileImage() {
         // Exact positioning: 7mm from top, 6mm from left
         // Frame size: 20mm width x 24mm height 
-        // At 300 DPI: 1mm = 11.81 pixels
-        const mmToPx = 11.81;
+        // At 600 DPI: 1mm = 23.62 pixels
+        const mmToPx = 23.62;
         
-        const frameX = 6 * mmToPx; // 6mm from left = 71px
-        const frameY = 7 * mmToPx; // 7mm from top = 83px
-        const frameWidth = 20 * mmToPx; // 20mm width = 236px
-        const frameHeight = 24 * mmToPx; // 24mm height = 283px
+        const frameX = 6 * mmToPx; // 6mm from left
+        const frameY = 7 * mmToPx; // 7mm from top
+        const frameWidth = 20 * mmToPx; // 20mm width
+        const frameHeight = 24 * mmToPx; // 24mm height
 
         // Image manipulation variables
         const imageZoom = this.imageZoom || 1.0;
@@ -667,7 +668,7 @@ class NamecardGenerator {
         }
         
         // Calculate text height to find its center
-        const textHeight = 23; // 23px font size (increased by 1)
+        const textHeight = 46; // 46px font size (doubled for 600 DPI)
         const textCenterY = textY + (textHeight / 2);
         
         // Position icon center to align with text center
@@ -692,7 +693,7 @@ class NamecardGenerator {
         }
         
         // Draw text at textX position (standard top baseline)
-        this.drawText(text, textX, textY, '23px Poppins', '#2c2c2c', 'left');
+        this.drawText(text, textX, textY, '46px Poppins', '#2c2c2c', 'left'); // Doubled font size for 600 DPI
     }
 
     async drawLocationIcon(iconX, y) {
@@ -705,7 +706,7 @@ class NamecardGenerator {
             const img = new Image();
             img.onload = () => {
                 // Draw image centered without any clipping or background
-                const iconSize = 30; // Size of the icon
+                const iconSize = 60; // Size of the icon (doubled for 600 DPI)
                 this.ctx.drawImage(img, centerX - iconSize/2, centerY - iconSize/2, iconSize, iconSize);
                 resolve();
             };
@@ -735,11 +736,11 @@ class NamecardGenerator {
         }
 
         // Exact QR code positioning: x=56-80mm, y=22-47mm
-        // At 300 DPI: 1mm = 11.81 pixels
-        const mmToPx = 11.81;
-        const x = 56 * mmToPx; // 56mm from left = 661px
-        const y = 22 * mmToPx; // 22mm from top = 260px
-        const qrSize = (24 * mmToPx) - 3; // 24mm width minus 3px = 280px
+        // At 600 DPI: 1mm = 23.62 pixels
+        const mmToPx = 23.62;
+        const x = 56 * mmToPx; // 56mm from left
+        const y = 22 * mmToPx; // 22mm from top
+        const qrSize = (24 * mmToPx) - 6; // 24mm width minus 6px (doubled for 600 DPI)
 
         return new Promise((resolve, reject) => {
             const qrImg = new Image();
@@ -1021,20 +1022,36 @@ class NamecardGenerator {
                 orientation: 'landscape',
                 unit: 'mm',
                 format: [cardWidth, cardHeight],
-                compress: true
+                compress: false, // Disable compression for maximum quality
+                putOnlyUsedFonts: false, // Include full fonts for better quality
+                floatPrecision: 16 // Higher precision for better rendering
             });
             
             // Add Poppins fonts to PDF (with Helvetica as fallback)
             window.fontLoader.addFontsToPDF(pdf);
             
-            // Set PDF metadata for print
+            // Set comprehensive PDF metadata for print
             pdf.setProperties({
-                title: `${data.fullName}_Namecard_Print`,
-                subject: 'Sunflower Business Card - Print Ready',
-                author: 'Sunflower Namecard Generator',
-                keywords: 'business card, print, CMYK, professional',
-                creator: 'Sunflower Childcare Group'
+                title: `${data.fullName}_Namecard_Print_High_Quality`,
+                subject: 'Sunflower Business Card - Professional Print Ready - 600 DPI',
+                author: 'Sunflower Namecard Generator v2.0',
+                keywords: 'business card, print, CMYK, professional, high quality, 600dpi, sunflower',
+                creator: 'Sunflower Childcare Group Pte Ltd',
+                producer: 'jsPDF v3.0.1 with Poppins Font Embedding',
+                creationDate: new Date()
             });
+            
+            // Add custom metadata for print specifications
+            pdf.setDocumentProperties({
+                pageLayout: 'SinglePage',
+                pageMode: 'UseNone',
+                displayDocTitle: true
+            });
+            
+            // Add print specifications as a comment/annotation in the PDF
+            pdf.setFontSize(8);
+            pdf.setTextColor(200, 200, 200); // Light gray
+            pdf.text('Print Specs: 600 DPI, CMYK Yellow(0,20,100,0), Size: 86x54mm', 1, cardHeight - 1);
             
             // Instead of embedding the entire canvas as image, let's render vector elements
             await this.renderVectorPDF(pdf, data, cardWidth, cardHeight);
@@ -1102,7 +1119,7 @@ class NamecardGenerator {
     }
 
     async renderVectorPDF(pdf, data, cardWidth, cardHeight) {
-        const mmToPx = 11.81; // Conversion factor from canvas
+        // Note: PDF uses mm units directly, no conversion needed for positioning
         
         // Set background color (Sunflower Yellow)
         pdf.setFillColor(255, 204, 0); // #FFCC00
@@ -1126,7 +1143,7 @@ class NamecardGenerator {
     }
 
     async addHighQualityImage(pdf) {
-        const mmToPx = 11.81;
+        const mmToPx = 23.62; // 600 DPI conversion for canvas rendering
         
         // Profile image positioning (from canvas coordinates)
         const frameX = 6; // 6mm from left
@@ -1138,8 +1155,8 @@ class NamecardGenerator {
         const highResCanvas = document.createElement('canvas');
         const highResCtx = highResCanvas.getContext('2d');
         
-        // Scale up for better quality (2x resolution)
-        const scale = 2;
+        // Scale up for better quality (4x resolution for ultra-high quality)
+        const scale = 4;
         highResCanvas.width = frameWidth * mmToPx * scale;
         highResCanvas.height = frameHeight * mmToPx * scale;
         
@@ -1180,17 +1197,17 @@ class NamecardGenerator {
         
         highResCtx.restore();
         
-        // Add to PDF with better compression
-        const highResImageData = highResCanvas.toDataURL('image/jpeg', 0.95);
+        // Add to PDF with lossless quality (PNG format)
+        const highResImageData = highResCanvas.toDataURL('image/png', 1.0);
         pdf.addImage(
             highResImageData,
-            'JPEG',
+            'PNG',
             frameX,
             frameY,
             frameWidth,
             frameHeight,
             undefined,
-            'SLOW' // Better compression
+            'NONE' // No compression for maximum quality
         );
     }
 
@@ -1313,7 +1330,7 @@ class NamecardGenerator {
                 pdf.setFillColor(255, 255, 255);
                 pdf.rect(qrX - 1, qrY - 1, qrSize + 2, qrSize + 2, 'F');
                 
-                // Add QR code with better compression
+                // Add QR code with no compression for maximum quality
                 pdf.addImage(
                     this.qrCodeDataUrl,
                     'PNG',
@@ -1322,7 +1339,7 @@ class NamecardGenerator {
                     qrSize,
                     qrSize,
                     undefined,
-                    'SLOW'
+                    'NONE'
                 );
                 resolve();
             };
