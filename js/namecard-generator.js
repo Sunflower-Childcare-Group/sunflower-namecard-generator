@@ -493,26 +493,26 @@ class NamecardGenerator {
         const iconX = 6 * mmToPx; // Icons at 6mm from left = 71px
         const textX = 9 * mmToPx + 5; // Text at 9mm from left + 5px mini spacing = 111px
         
-        // Email at y=35mm (back to original)
+        // Email at y=37.73mm (aligned with QR code positioning)
         if (data.email) {
-            const emailY = 35 * mmToPx; // 35mm from top = 413px
+            const emailY = 37.73 * mmToPx; // 37.73mm from top
             await this.drawContactLineWithIconAndText('email', data.email, iconX, textX, emailY, emailY);
         }
         
-        // Mobile/Office numbers at y=38.5mm (optimal spacing from email)
+        // Mobile/Office numbers at y=41.23mm (maintaining spacing)
         const phoneNumbers = [];
         if (data.mobileNumber) phoneNumbers.push(data.mobileNumber);
         if (data.officeNumber) phoneNumbers.push(data.officeNumber);
         
         if (phoneNumbers.length > 0) {
-            const phoneY = 38.5 * mmToPx; // 38.5mm from top = 455px (optimal spacing)
+            const phoneY = 41.23 * mmToPx; // 41.23mm from top (maintaining 3.5mm spacing)
             const phoneText = phoneNumbers.join(' | ');
             await this.drawContactLineWithIconAndText('phone', phoneText, iconX, textX, phoneY, phoneY);
         }
 
-        // Address at y=42mm (back to original)
+        // Address at y=44.73mm (bottom aligns with QR code)
         if (data.officeAddress) {
-            const addressY = 42 * mmToPx; // 42mm from top = 496px
+            const addressY = 44.73 * mmToPx; // 44.73mm from top (bottom aligns with QR code)
             const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== ''); // Remove empty lines
             
             // Calculate middle position for icon based on number of lines
@@ -1246,7 +1246,7 @@ class NamecardGenerator {
         };
         
         // Define consistent right-alignment reference point
-        const rightAlignX = 80; // 80mm from left (consistent for both name and designation)
+        const rightAlignX = 83; // 83mm from left (3mm more to the right for better spacing)
         
         // Use Poppins font with Helvetica as fallback
         const fontName = window.fontLoader.getFontName('bold');
@@ -1309,25 +1309,25 @@ class NamecardGenerator {
         
         let currentY = 35;
         
-        // Email at y=35mm (match canvas)
+        // Email at y=37.73mm (match canvas)
         if (data.email) {
-            pdf.text(data.email, textX, adjustYForBaseline(35, 5.7));
+            pdf.text(data.email, textX, adjustYForBaseline(37.73, 5.7));
         }
         
-        // Phone numbers at y=38.5mm (match canvas)
+        // Phone numbers at y=41.23mm (match canvas)
         const phoneNumbers = [];
         if (data.mobileNumber) phoneNumbers.push(data.mobileNumber);
         if (data.officeNumber) phoneNumbers.push(data.officeNumber);
         
         if (phoneNumbers.length > 0) {
             const phoneText = phoneNumbers.join(' | ');
-            pdf.text(phoneText, textX, adjustYForBaseline(38.5, 5.7));
+            pdf.text(phoneText, textX, adjustYForBaseline(41.23, 5.7));
         }
         
-        // Address at y=42mm (match canvas)
+        // Address at y=44.73mm (match canvas)
         if (data.officeAddress) {
             const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== '');
-            let addressY = 42; // Start at 42mm like canvas
+            let addressY = 44.73; // Start at 44.73mm like canvas
             addressLines.forEach(line => {
                 pdf.text(line, textX, adjustYForBaseline(addressY, 5.7));
                 addressY += 2.54; // 2.54mm = 30px spacing (like canvas: 30px ÷ 11.81 px/mm)
@@ -1375,27 +1375,18 @@ class NamecardGenerator {
         const iconSize = 2.54; // 60px converted to mm at 600 DPI
         
         if (data.email) {
-            // Email icon center at 35.974mm from top (35mm + text height center offset)
-            await this.addSVGIconToPDF(pdf, './email.svg', iconCenterX, 35.974, iconSize);
+            // Email icon aligned with email text at 37.73mm
+            await this.addSVGIconToPDF(pdf, './email.svg', iconCenterX, 37.73, iconSize);
         }
         
         if (data.mobileNumber || data.officeNumber) {
-            // Phone icon center at 39.474mm from top (38.5mm + text height center offset)
-            await this.addSVGIconToPDF(pdf, './number.svg', iconCenterX, 39.474, iconSize);
+            // Phone icon aligned with phone text at 41.23mm
+            await this.addSVGIconToPDF(pdf, './number.svg', iconCenterX, 41.23, iconSize);
         }
         
         if (data.officeAddress) {
-            // Address icon - calculate center based on number of address lines
-            const addressLines = data.officeAddress.split('\n').filter(line => line.trim() !== '');
-            const totalLines = addressLines.length;
-            const lineSpacing = 2.54; // 60px ÷ 23.62 = 2.54mm
-            const textHeight = 1.95; // 46px ÷ 23.62 = 1.95mm
-            
-            const firstLineCenter = 42 + (textHeight / 2);
-            const lastLineCenter = 42 + ((totalLines - 1) * lineSpacing) + (textHeight / 2);
-            const overallTextCenter = (firstLineCenter + lastLineCenter) / 2;
-            
-            await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, overallTextCenter, iconSize);
+            // Address icon aligned with first line of address text at 44.73mm (bottom aligns with QR code)
+            await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, 44.73, iconSize);
         }
     }
 
