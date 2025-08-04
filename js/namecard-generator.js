@@ -504,10 +504,10 @@ class NamecardGenerator {
             addressStartY = qrBottom - ((addressLines.length - 1) * 2.54);
         }
         
-        // Calculate phone and email positions relative to address
-        const phoneY = (addressStartY - contactSpacing) * mmToPx;
-        const emailY = (addressStartY - (contactSpacing * 2)) * mmToPx;
-        const addressY = addressStartY * mmToPx;
+        // Calculate phone and email positions relative to address (PNG manual adjustment: -2mm)
+        const phoneY = (addressStartY - contactSpacing - 2) * mmToPx; // Move up 2mm for PNG
+        const emailY = (addressStartY - (contactSpacing * 2) - 2) * mmToPx; // Move up 2mm for PNG
+        const addressY = (addressStartY - 2) * mmToPx; // Move up 2mm for PNG
         
         // Email - dynamically positioned
         if (data.email) {
@@ -533,14 +533,14 @@ class NamecardGenerator {
             const lineSpacing = 60; // 60px spacing between lines (doubled for 600 DPI)
             const textHeight = 46; // 46px font size (doubled for 600 DPI)
             
-            // Find the middle of all address text lines
+            // Find the middle of all address text lines (adjusted for PNG -2mm offset)
             const firstLineCenter = addressY + (textHeight / 2);
             const lastLineCenter = addressY + ((totalLines - 1) * lineSpacing) + (textHeight / 2);
             const overallTextCenter = (firstLineCenter + lastLineCenter) / 2;
             
             // Debug log for icon positioning
             
-            // Draw location icon centered with the overall text
+            // Draw location icon centered with the overall text (PNG uses adjusted addressY)
             await this.drawLocationIcon(iconX, overallTextCenter - 15); // -15 because drawLocationIcon expects top Y
             
             // Draw all address lines
@@ -1276,7 +1276,7 @@ class NamecardGenerator {
             const fontSize = 18.1;
             pdf.setFontSize(fontSize); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
-            const nameY = adjustYForBaseline(8.42, fontSize); // 8.42mm from top (PDF-specific positioning)
+            const nameY = adjustYForBaseline(9.42, fontSize); // 9.42mm from top (1mm lower for PDF)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
@@ -1297,7 +1297,7 @@ class NamecardGenerator {
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
-            const designationY = adjustYForBaseline(15.12, fontSize); // 15.12mm from top (PDF-specific positioning)
+            const designationY = adjustYForBaseline(16.12, fontSize); // 16.12mm from top (1mm lower for PDF)
             
             // Use same right-alignment reference point as name
             const textWidth = pdf.getTextWidth(designationText);
