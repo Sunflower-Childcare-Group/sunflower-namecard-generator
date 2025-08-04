@@ -678,13 +678,13 @@ class NamecardGenerator {
         let iconPath = '';
         switch(iconType) {
             case 'email':
-                iconPath = './email.png';
+                iconPath = './email.svg';
                 break;
             case 'phone':
-                iconPath = './number.png';
+                iconPath = './number.svg';
                 break;
             case 'location':
-                iconPath = './location.png';
+                iconPath = './location.svg';
                 break;
         }
         
@@ -698,7 +698,7 @@ class NamecardGenerator {
 
     async drawLocationIcon(iconX, y) {
         // Draw location icon image
-        await this.drawIconImage('./location.png', iconX + 15, y + 15);
+        await this.drawIconImage('./location.svg', iconX + 15, y + 15);
     }
 
     async drawIconImage(imagePath, centerX, centerY) {
