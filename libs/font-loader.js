@@ -84,19 +84,29 @@ class FontLoader {
         if (!this.loaded || !pdf) return false;
 
         try {
+            let embeddedFonts = [];
+            
             // Add Regular font
             if (this.fonts['Poppins-Regular']) {
                 pdf.addFileToVFS('Poppins-Regular.ttf', this.fonts['Poppins-Regular']);
                 pdf.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
+                embeddedFonts.push('Poppins-Regular');
+                console.log('✅ Embedded Poppins-Regular font');
+            } else {
+                console.warn('❌ Poppins-Regular font not available for embedding');
             }
 
             // Add Bold font  
             if (this.fonts['Poppins-Bold']) {
                 pdf.addFileToVFS('Poppins-Bold.ttf', this.fonts['Poppins-Bold']);
                 pdf.addFont('Poppins-Bold.ttf', 'Poppins', 'bold');
+                embeddedFonts.push('Poppins-Bold');
+                console.log('✅ Embedded Poppins-Bold font');
+            } else {
+                console.warn('❌ Poppins-Bold font not available for embedding');
             }
 
-            console.log('✅ Poppins fonts added to PDF successfully');
+            console.log(`✅ ${embeddedFonts.length} Poppins fonts embedded:`, embeddedFonts);
             return true;
         } catch (error) {
             console.error('❌ Error adding fonts to PDF:', error);

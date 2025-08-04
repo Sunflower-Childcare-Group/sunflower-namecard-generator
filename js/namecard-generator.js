@@ -1082,7 +1082,8 @@ class NamecardGenerator {
             });
             
             // Add Poppins fonts to PDF (with Helvetica as fallback)
-            window.fontLoader.addFontsToPDF(pdf);
+            const fontsAdded = window.fontLoader.addFontsToPDF(pdf);
+            console.log('Fonts embedded:', fontsAdded);
             
             // Set comprehensive PDF metadata for print
             pdf.setProperties({
@@ -1094,6 +1095,9 @@ class NamecardGenerator {
                 producer: 'Sunflower Childcare Group Business Card Generator',
                 creationDate: new Date()
             });
+            
+            // Force set producer again after other operations (jsPDF sometimes overrides)
+            pdf.internal.metadata.producer = 'Sunflower Childcare Group Business Card Generator';
             
             // Add custom metadata for print specifications
             pdf.setDocumentProperties({
