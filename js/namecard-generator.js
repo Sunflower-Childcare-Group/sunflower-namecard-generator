@@ -475,16 +475,16 @@ class NamecardGenerator {
         // Draw name and designation at exact positions (right-aligned)
         const nameX = 80 * mmToPx; // 80mm from left = 945px (right-aligned reference point)
         
-        // Name at y=8.42mm (moved down 0.3mm more)
+        // Name at y=9.42mm (moved down 1mm more)
         if (data.fullName) {
-            const nameY = 8.42 * mmToPx; // 8.42mm from top
+            const nameY = 9.42 * mmToPx; // 9.42mm from top
             const nameText = data.fullName.toUpperCase();
             this.drawText(nameText, nameX, nameY, 'bold 144px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
 
-        // Designation at y=15.12mm (closer to name and 0.3mm lower)
+        // Designation at y=16.12mm (moved down 1mm more)
         if (data.designation) {
-            const designationY = 15.12 * mmToPx; // 15.12mm from top (closer spacing and lower)
+            const designationY = 16.12 * mmToPx; // 16.12mm from top
             const designationText = data.designation.toUpperCase();
             this.drawText(designationText, nameX, designationY, '74px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
@@ -1276,7 +1276,7 @@ class NamecardGenerator {
             const fontSize = 18.1;
             pdf.setFontSize(fontSize); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
-            const nameY = adjustYForBaseline(8.42, fontSize); // 8.42mm from top (moved down 0.3mm more)
+            const nameY = adjustYForBaseline(8.42, fontSize); // 8.42mm from top (PDF-specific positioning)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
@@ -1297,7 +1297,7 @@ class NamecardGenerator {
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
-            const designationY = adjustYForBaseline(15.12, fontSize); // 15.12mm from top (closer to name and 0.3mm lower)
+            const designationY = adjustYForBaseline(15.12, fontSize); // 15.12mm from top (PDF-specific positioning)
             
             // Use same right-alignment reference point as name
             const textWidth = pdf.getTextWidth(designationText);
