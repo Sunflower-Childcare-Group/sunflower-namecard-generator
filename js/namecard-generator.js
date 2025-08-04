@@ -1179,8 +1179,8 @@ class NamecardGenerator {
         const highResCanvas = document.createElement('canvas');
         const highResCtx = highResCanvas.getContext('2d');
         
-        // Scale up for better quality (4x resolution for ultra-high quality)
-        const scale = 4;
+        // Scale up for good quality (2x resolution for balanced size/quality)
+        const scale = 2;
         highResCanvas.width = frameWidth * mmToPx * scale;
         highResCanvas.height = frameHeight * mmToPx * scale;
         
@@ -1411,8 +1411,8 @@ class NamecardGenerator {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // High resolution for PDF quality (6x scale for optimal size/quality balance)
-            const scale = 6;
+            // Ultra-high resolution for PDF quality (10x scale for crisp vector rendering)
+            const scale = 10;
             const pixelSize = size * 23.62 * scale; // Convert mm to pixels at ultra-high res
             canvas.width = pixelSize;
             canvas.height = pixelSize;
