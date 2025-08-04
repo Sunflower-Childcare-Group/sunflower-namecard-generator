@@ -475,16 +475,16 @@ class NamecardGenerator {
         // Draw name and designation at exact positions (right-aligned)
         const nameX = 80 * mmToPx; // 80mm from left = 945px (right-aligned reference point)
         
-        // Name at y=8mm
+        // Name at y=8.1mm (moved 0.1mm down)
         if (data.fullName) {
-            const nameY = 8 * mmToPx; // 8mm from top
+            const nameY = 8.1 * mmToPx; // 8.1mm from top
             const nameText = data.fullName.toUpperCase();
             this.drawText(nameText, nameX, nameY, 'bold 144px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
 
-        // Designation at y=15mm
+        // Designation at y=15.1mm (moved 0.1mm down)
         if (data.designation) {
-            const designationY = 15 * mmToPx; // 15mm from top
+            const designationY = 15.1 * mmToPx; // 15.1mm from top
             const designationText = data.designation.toUpperCase();
             this.drawText(designationText, nameX, designationY, '74px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
         }
@@ -558,7 +558,7 @@ class NamecardGenerator {
     drawImageFrame() {
         // Draw grey background to show exact image frame boundaries
         const mmToPx = 23.62; // 600 DPI conversion
-        const frameX = 6 * mmToPx; // 6mm from left
+        const frameX = 5.4 * mmToPx; // 5.4mm from left
         const frameY = 7 * mmToPx; // 7mm from top
         const frameWidth = 20 * mmToPx; // 20mm width
         const frameHeight = 24 * mmToPx; // 24mm height
@@ -570,12 +570,12 @@ class NamecardGenerator {
     }
 
     drawProfileImage() {
-        // Exact positioning: 7mm from top, 6mm from left
+        // Exact positioning: 7mm from top, 5.4mm from left
         // Frame size: 20mm width x 24mm height 
         // At 600 DPI: 1mm = 23.62 pixels
         const mmToPx = 23.62;
         
-        const frameX = 6 * mmToPx; // 6mm from left
+        const frameX = 5.4 * mmToPx; // 5.4mm from left
         const frameY = 7 * mmToPx; // 7mm from top
         const frameWidth = 20 * mmToPx; // 20mm width
         const frameHeight = 24 * mmToPx; // 24mm height
@@ -1181,7 +1181,7 @@ class NamecardGenerator {
         const mmToPx = 23.62; // 600 DPI conversion for canvas rendering
         
         // Profile image positioning (from canvas coordinates)
-        const frameX = 6; // 6mm from left
+        const frameX = 5.4; // 5.4mm from left
         const frameY = 7; // 7mm from top  
         const frameWidth = 20; // 20mm width
         const frameHeight = 24; // 24mm height
@@ -1276,7 +1276,7 @@ class NamecardGenerator {
             const fontSize = 18.1;
             pdf.setFontSize(fontSize); // Match Canva font size
             const nameText = data.fullName.toUpperCase();
-            const nameY = adjustYForBaseline(8, fontSize); // 8mm from top (canvas positioning)
+            const nameY = adjustYForBaseline(8.1, fontSize); // 8.1mm from top (moved 0.1mm down)
             
             // Measure text width for right alignment
             const textWidth = pdf.getTextWidth(nameText);
@@ -1297,7 +1297,7 @@ class NamecardGenerator {
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
-            const designationY = adjustYForBaseline(15, fontSize); // 15mm from top (canvas positioning)
+            const designationY = adjustYForBaseline(15.1, fontSize); // 15.1mm from top (moved 0.1mm down)
             
             // Use same right-alignment reference point as name
             const textWidth = pdf.getTextWidth(designationText);
