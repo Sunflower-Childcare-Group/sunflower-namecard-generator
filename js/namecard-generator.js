@@ -1077,7 +1077,7 @@ class NamecardGenerator {
                 unit: 'mm',
                 format: [cardWidth, cardHeight],
                 compress: false, // Disable compression for maximum quality
-                putOnlyUsedFonts: false, // Include full fonts for better quality
+                putOnlyUsedFonts: true, // Only embed fonts that are actually used
                 floatPrecision: 16 // Higher precision for better rendering
             });
             
@@ -1091,7 +1091,7 @@ class NamecardGenerator {
                 author: 'Sunflower Namecard Generator v2.0',
                 keywords: 'business card, print, CMYK, professional, high quality, 600dpi, sunflower',
                 creator: 'Sunflower Childcare Group Pte Ltd',
-                producer: 'jsPDF v3.0.1 with Poppins Font Embedding',
+                producer: 'Sunflower Childcare Group Business Card Generator',
                 creationDate: new Date()
             });
             

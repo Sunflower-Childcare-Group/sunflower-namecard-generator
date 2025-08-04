@@ -7,7 +7,6 @@ class FontLoader {
     constructor() {
         this.fonts = {
             'Poppins-Regular': null,
-            'Poppins-SemiBold': null,
             'Poppins-Bold': null
         };
         this.loaded = false;
@@ -44,22 +43,17 @@ class FontLoader {
         console.log('📥 Loading Poppins fonts for PDF embedding...');
 
         try {
-            // Load all font variants
+            // Load only Regular and Bold font variants
             const fontPromises = [
                 this.fontToBase64('libs/Poppins-Regular.ttf'),
-                this.fontToBase64('libs/Poppins-SemiBold.ttf'),
                 this.fontToBase64('libs/Poppins-Bold.ttf')
             ];
 
-            const [regular, semibold, bold] = await Promise.all(fontPromises);
+            const [regular, bold] = await Promise.all(fontPromises);
 
             let loadedCount = 0;
             if (regular) {
                 this.fonts['Poppins-Regular'] = regular;
-                loadedCount++;
-            }
-            if (semibold) {
-                this.fonts['Poppins-SemiBold'] = semibold;
                 loadedCount++;
             }
             if (bold) {
@@ -94,12 +88,6 @@ class FontLoader {
             if (this.fonts['Poppins-Regular']) {
                 pdf.addFileToVFS('Poppins-Regular.ttf', this.fonts['Poppins-Regular']);
                 pdf.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
-            }
-
-            // Add SemiBold font
-            if (this.fonts['Poppins-SemiBold']) {
-                pdf.addFileToVFS('Poppins-SemiBold.ttf', this.fonts['Poppins-SemiBold']);
-                pdf.addFont('Poppins-SemiBold.ttf', 'Poppins', 'semibold');
             }
 
             // Add Bold font  
