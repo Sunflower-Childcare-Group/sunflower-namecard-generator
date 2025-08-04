@@ -1375,13 +1375,13 @@ class NamecardGenerator {
         const iconSize = 2.54; // 60px converted to mm at 600 DPI
         
         if (data.email) {
-            // Email icon aligned with email text at 36.46mm
-            await this.addSVGIconToPDF(pdf, './email.svg', iconCenterX, 36.46, iconSize);
+            // Email icon aligned with email text at 36.46mm + 0.254mm baseline offset
+            await this.addSVGIconToPDF(pdf, './email.svg', iconCenterX, 36.714, iconSize);
         }
         
         if (data.mobileNumber || data.officeNumber) {
-            // Phone icon aligned with phone text at 39.96mm
-            await this.addSVGIconToPDF(pdf, './number.svg', iconCenterX, 39.96, iconSize);
+            // Phone icon aligned with phone text at 39.96mm + 0.254mm baseline offset
+            await this.addSVGIconToPDF(pdf, './number.svg', iconCenterX, 40.214, iconSize);
         }
         
         if (data.officeAddress) {
@@ -1391,12 +1391,12 @@ class NamecardGenerator {
             const lineSpacing = 2.54; // 2.54mm spacing between lines (matches PDF text spacing)
             
             if (totalLines === 1) {
-                // Single line: align with the line at 43.46mm
-                await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, 43.46, iconSize);
+                // Single line: align with the line at 43.46mm + 0.254mm baseline offset
+                await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, 43.714, iconSize);
             } else {
-                // Multiple lines: center icon between first and last line
-                const firstLineY = 43.46;
-                const lastLineY = 43.46 + ((totalLines - 1) * lineSpacing);
+                // Multiple lines: center icon between first and last line + 0.254mm baseline offset
+                const firstLineY = 43.46 + 0.254;
+                const lastLineY = 43.46 + 0.254 + ((totalLines - 1) * lineSpacing);
                 const centerY = (firstLineY + lastLineY) / 2;
                 await this.addSVGIconToPDF(pdf, './location.svg', iconCenterX, centerY, iconSize);
             }
