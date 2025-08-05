@@ -96,7 +96,6 @@ class NamecardGenerator {
         resetPosition.addEventListener('click', () => this.resetImagePosition());
 
         // Buttons
-        document.getElementById('generateBtn').addEventListener('click', () => this.generateNamecard());
         document.getElementById('clearBtn').addEventListener('click', () => this.clearForm());
         document.getElementById('downloadPdfBtn').addEventListener('click', () => this.downloadPDF());
         document.getElementById('instructionsBtn').addEventListener('click', () => this.showInstructions());
