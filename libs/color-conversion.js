@@ -8,7 +8,7 @@ class ColorConversion {
             // Sunflower Yellow #FFCC00 
             sunflowerYellow: {
                 rgb: { r: 255, g: 204, b: 0 },
-                cmyk: { c: 0, m: 20, y: 100, k: 0 }
+                cmyk: { c: 0, m: 19, y: 91, k: 2 }
             },
             // Dark text #2c2c2c
             darkText: {
