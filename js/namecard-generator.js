@@ -1196,8 +1196,11 @@ class NamecardGenerator {
         // Note: PDF uses mm units directly, no conversion needed for positioning
         
         // Set background color (Sunflower Yellow in true CMYK)
-        pdf.setFillColor(0.0, 0.2, 1.0, 0.0); // CMYK: C=0%, M=20%, Y=100%, K=0%
+        pdf.setFillColor("0.0", "0.2", "1.0", "0.0"); // CMYK: C=0%, M=20%, Y=100%, K=0%
         pdf.rect(0, 0, cardWidth, cardHeight, 'F');
+        
+        // IMPORTANT: Reset fill color after background - background overrides text fill color!
+        console.log('🔄 Background drawn, fill color was set to yellow. Now resetting for text...');
         
         // Add profile image at high quality
         if (this.uploadedImage) {
@@ -1286,8 +1289,27 @@ class NamecardGenerator {
     }
 
     addVectorText(pdf, data) {
-        // Set text color (dark blue-gray in true CMYK)
-        pdf.setTextColor(0.34, 0.24, 0.0, 0.73); // CMYK: C=34%, M=24%, Y=0%, K=73% (#2d3444)
+        // WORKAROUND: jsPDF setTextColor doesn't support CMYK, use setFillColor instead
+        const targetTextColor = ["0.34", "0.24", "0.0", "0.73"]; // CMYK: C=34%, M=24%, Y=0%, K=73% (#2d3444)
+        
+        // DEBUG: Log the exact values being passed to jsPDF
+        console.log('🎨 Setting CMYK text color via setFillColor (setTextColor doesn\'t support CMYK):', {
+            values: targetTextColor,
+            expanded: targetTextColor,
+            colorSpace: 'cmyk',
+            expected: 'C=34%, M=24%, Y=0%, K=73%'
+        });
+        
+        // EXPERIMENT: Try setTextColor with RGB equivalent of CMYK(34%, 24%, 0%, 73%)
+        // CMYK(34%, 24%, 0%, 73%) should convert to approximately RGB(45, 52, 68) = #2d3444
+        console.log('🧪 EXPERIMENT: Using setTextColor with RGB equivalent of target CMYK');
+        pdf.setTextColor(45, 52, 68); // RGB approximation of CMYK(34%, 24%, 0%, 73%)
+        
+        // Also try CMYK methods as backup
+        pdf.setFillColor(...targetTextColor);
+        pdf.setDrawColor(...targetTextColor);
+        
+        console.log('✅ Set text color via RGB(45,52,68) and CMYK fill/draw colors as backup.');
         
         // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
         const adjustYForBaseline = (y, fontSize) => {
@@ -1309,6 +1331,10 @@ class NamecardGenerator {
         } catch (error) {
             pdf.setFont('helvetica', 'bold');
         }
+        // Reapply text color after font change (RGB + CMYK backup)
+        pdf.setTextColor(45, 52, 68); // RGB approximation
+        pdf.setFillColor(...targetTextColor); // CMYK backup
+        pdf.setDrawColor(...targetTextColor);
         
         // Name (large, bold, right-aligned)
         if (data.fullName) {
@@ -1332,6 +1358,10 @@ class NamecardGenerator {
             } catch (error) {
                 pdf.setFont('helvetica', 'normal');
             }
+            // Reapply text color after font change (RGB + CMYK backup)
+        pdf.setTextColor(45, 52, 68); // RGB approximation
+        pdf.setFillColor(...targetTextColor); // CMYK backup
+        pdf.setDrawColor(...targetTextColor);
             
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
@@ -1352,6 +1382,10 @@ class NamecardGenerator {
         } catch (error) {
             pdf.setFont('helvetica', 'normal');
         }
+        // Reapply text color after font change (RGB + CMYK backup)
+        pdf.setTextColor(45, 52, 68); // RGB approximation
+        pdf.setFillColor(...targetTextColor); // CMYK backup
+        pdf.setDrawColor(...targetTextColor);
         
         pdf.setFontSize(5.7); // Match Canva font size
         
@@ -1421,8 +1455,15 @@ class NamecardGenerator {
         return new Promise((resolve) => {
             qrImg.onload = () => {
                 // Add white background for QR code
+                console.log('🔲 Setting QR code background to white RGB(255,255,255)');
                 pdf.setFillColor(255, 255, 255);
                 pdf.rect(qrX - 1, qrY - 1, qrSize + 2, qrSize + 2, 'F');
+                
+                // IMPORTANT: Restore text colors after QR background
+                console.log('🔄 Restoring text colors after QR code background');
+                const textColor = ["0.34", "0.24", "0.0", "0.73"];
+                pdf.setFillColor(...textColor);
+                pdf.setDrawColor(...textColor);
                 
                 // Add QR code with no compression for maximum quality
                 pdf.addImage(
@@ -1535,8 +1576,16 @@ class NamecardGenerator {
                 };
                 img.onerror = () => {
                     // Fallback to simple circle if SVG fails
+                    console.log('🔴 Setting icon fallback to dark RGB(44,44,44)');
                     pdf.setFillColor(44, 44, 44);
                     pdf.circle(x, y, size/2, 'F');
+                    
+                    // IMPORTANT: Restore text colors after icon drawing
+                    console.log('🔄 Restoring text colors after icon fallback');
+                    const textColor = ["0.34", "0.24", "0.0", "0.73"];
+                    pdf.setFillColor(...textColor);
+                    pdf.setDrawColor(...textColor);
+                    
                     resolve();
                 };
                 img.crossOrigin = 'anonymous';
@@ -1544,8 +1593,15 @@ class NamecardGenerator {
             });
         } catch (error) {
             // Fallback to simple circle
+            console.log('🔴 Setting icon error fallback to dark RGB(44,44,44)');
             pdf.setFillColor(44, 44, 44);
             pdf.circle(x, y, size/2, 'F');
+            
+            // IMPORTANT: Restore text colors after icon drawing
+            console.log('🔄 Restoring text colors after icon error fallback');
+            const textColor = ["0.34", "0.24", "0.0", "0.73"];
+            pdf.setFillColor(...textColor);
+            pdf.setDrawColor(...textColor);
         }
     }
 
