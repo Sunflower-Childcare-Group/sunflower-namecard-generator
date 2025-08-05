@@ -98,7 +98,6 @@ class NamecardGenerator {
         // Buttons
         document.getElementById('generateBtn').addEventListener('click', () => this.generateNamecard());
         document.getElementById('clearBtn').addEventListener('click', () => this.clearForm());
-        document.getElementById('downloadBtn').addEventListener('click', () => this.downloadNamecard());
         document.getElementById('downloadPdfBtn').addEventListener('click', () => this.downloadPDF());
         document.getElementById('instructionsBtn').addEventListener('click', () => this.showInstructions());
         document.getElementById('closeModal').addEventListener('click', () => this.hideInstructions());
