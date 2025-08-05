@@ -1297,7 +1297,7 @@ class NamecardGenerator {
             const fontSize = 9.3;
             pdf.setFontSize(fontSize); // Match Canva font size
             const designationText = data.designation.toUpperCase();
-            const designationY = adjustYForBaseline(16.12, fontSize); // 16.12mm from top (1mm lower for PDF)
+            const designationY = adjustYForBaseline(15.12, fontSize); // 15.12mm from top (moved closer to name)
             
             // Use same right-alignment reference point as name
             const textWidth = pdf.getTextWidth(designationText);
