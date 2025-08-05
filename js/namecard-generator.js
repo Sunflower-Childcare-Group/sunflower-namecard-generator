@@ -54,6 +54,10 @@ class NamecardGenerator {
             if (input.type !== 'file') {
                 input.addEventListener('input', () => {
                     this.debouncedUpdatePreview();
+                    // Check text width for name field
+                    if (input.id === 'fullName') {
+                        this.checkNameWidth(input.value);
+                    }
                 });
                 input.addEventListener('change', () => {
                     this.debouncedUpdatePreview();
@@ -133,6 +137,11 @@ class NamecardGenerator {
         
         if (!data.fullName) {
             errors.push('Full Name is required');
+        } else {
+            // Check if name is too wide
+            if (this.isNameTooWide(data.fullName)) {
+                errors.push('Full Name is too long and will overlap with the image. Please shorten it.');
+            }
         }
         
         if (!data.designation) {
@@ -167,6 +176,38 @@ class NamecardGenerator {
     isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
+    }
+
+    isNameTooWide(nameText) {
+        if (!nameText) return false;
+
+        // Create a temporary canvas to measure text width
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        // Use the same font as in the actual namecard (scaled for measurement)
+        tempCtx.font = 'bold 72px Poppins'; // Half size for measurement efficiency
+        
+        const textWidth = tempCtx.measureText(nameText.toUpperCase()).width;
+        
+        // Calculate maximum allowed width (from right edge to image area)
+        // Image area: 5.4mm from left, 20mm wide = ends at 25.4mm
+        // Name starts at 80mm and goes left
+        // So maximum width = 80mm - 25.4mm - 4mm safety margin = 50.6mm
+        const mmToPx = 23.62; // 600 DPI conversion
+        const maxWidthMm = 50.6; // Maximum width in mm (increased safety margin)
+        const maxWidthPx = maxWidthMm * mmToPx * 0.5; // Half scale for measurement
+        
+        return textWidth > maxWidthPx;
+    }
+
+    checkNameWidth(nameText) {
+        const warningElement = document.getElementById('nameWidthWarning');
+        if (this.isNameTooWide(nameText)) {
+            warningElement.style.display = 'block';
+        } else {
+            warningElement.style.display = 'none';
+        }
     }
 
     // Image handling
