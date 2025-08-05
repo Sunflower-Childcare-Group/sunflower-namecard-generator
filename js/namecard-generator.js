@@ -518,14 +518,14 @@ class NamecardGenerator {
         if (data.fullName) {
             const nameY = 9.42 * mmToPx; // 9.42mm from top
             const nameText = data.fullName.toUpperCase();
-            this.drawText(nameText, nameX, nameY, 'bold 144px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
+            this.drawText(nameText, nameX, nameY, 'bold 144px Poppins', '#2d3444', 'right'); // Doubled font size for 600 DPI
         }
 
         // Designation at y=16.12mm (moved down 1mm more)
         if (data.designation) {
             const designationY = 16.12 * mmToPx; // 16.12mm from top
             const designationText = data.designation.toUpperCase();
-            this.drawText(designationText, nameX, designationY, '74px Poppins', '#2c2c2c', 'right'); // Doubled font size for 600 DPI
+            this.drawText(designationText, nameX, designationY, '74px Poppins', '#2d3444', 'right'); // Doubled font size for 600 DPI
         }
 
         // Draw contact information with dynamic positioning (matches PDF)
@@ -585,7 +585,7 @@ class NamecardGenerator {
             // Draw all address lines
             for (let i = 0; i < addressLines.length; i++) {
                 const lineY = addressY + (i * lineSpacing);
-                this.drawText(addressLines[i], textX, lineY, '46px Poppins', '#2c2c2c', 'left'); // Doubled font size for 600 DPI
+                this.drawText(addressLines[i], textX, lineY, '46px Poppins', '#2d3444', 'left'); // Doubled font size for 600 DPI
             }
         }
 
@@ -733,7 +733,7 @@ class NamecardGenerator {
         }
         
         // Draw text at textX position (standard top baseline)
-        this.drawText(text, textX, textY, '46px Poppins', '#2c2c2c', 'left'); // Doubled font size for 600 DPI
+        this.drawText(text, textX, textY, '46px Poppins', '#2d3444', 'left'); // Doubled font size for 600 DPI
     }
 
     async drawLocationIcon(iconX, y) {
@@ -1286,8 +1286,8 @@ class NamecardGenerator {
     }
 
     addVectorText(pdf, data) {
-        // Set text color (dark gray in true CMYK)
-        pdf.setTextColor(0.0, 0.0, 0.0, 0.83); // CMYK: C=0%, M=0%, Y=0%, K=83%
+        // Set text color (dark blue-gray in true CMYK)
+        pdf.setTextColor(0.34, 0.24, 0.0, 0.73); // CMYK: C=34%, M=24%, Y=0%, K=73% (#2d3444)
         
         // Helper function to convert canvas 'top' baseline positioning to jsPDF baseline positioning
         const adjustYForBaseline = (y, fontSize) => {
