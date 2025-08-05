@@ -1197,7 +1197,7 @@ class NamecardGenerator {
         
         // Set background color (Sunflower Yellow in true CMYK)
         // Using RGB equivalent that converts to target CMYK(0%, 19%, 91%, 2%)
-        pdf.setFillColor(244, 198, 23); // RGB equivalent that converts to correct CMYK
+        pdf.setFillColor(251, 204, 22); // RGB equivalent that converts to correct CMYK
         pdf.rect(0, 0, cardWidth, cardHeight, 'F');
         
         // Background drawn with yellow fill color
