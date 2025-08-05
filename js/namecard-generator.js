@@ -1196,7 +1196,8 @@ class NamecardGenerator {
         // Note: PDF uses mm units directly, no conversion needed for positioning
         
         // Set background color (Sunflower Yellow in true CMYK)
-        pdf.setFillColor("0.0", "0.19", "0.91", "0.02"); // CMYK: C=0%, M=19%, Y=91%, K=2%
+        // Using RGB equivalent that converts to target CMYK(0%, 19%, 91%, 2%)
+        pdf.setFillColor(244, 198, 23); // RGB equivalent that converts to correct CMYK
         pdf.rect(0, 0, cardWidth, cardHeight, 'F');
         
         // Background drawn with yellow fill color
