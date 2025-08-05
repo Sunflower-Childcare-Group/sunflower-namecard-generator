@@ -1258,8 +1258,8 @@ class NamecardGenerator {
             return y + (fontSize * 0.176389); // Reduced conversion factor (half of 0.352778)
         };
         
-        // Define consistent right-alignment reference point
-        const rightAlignX = 81; // 81mm from left (balanced positioning)
+        // Define consistent right-alignment reference point (match canvas)
+        const rightAlignX = 80; // 80mm from left (matches canvas positioning)
         
         // Use Poppins font with Helvetica as fallback
         const fontName = window.fontLoader.getFontName('bold');
@@ -1291,7 +1291,7 @@ class NamecardGenerator {
             try {
                 pdf.setFont(fontName, fontStyle);
             } catch (error) {
-                    pdf.setFont('helvetica', 'normal');
+                pdf.setFont('helvetica', 'normal');
             }
             
             const fontSize = 9.3;
@@ -1299,7 +1299,7 @@ class NamecardGenerator {
             const designationText = data.designation.toUpperCase();
             const designationY = adjustYForBaseline(15.12, fontSize); // 15.12mm from top (moved closer to name)
             
-            // Use same right-alignment reference point as name
+            // Ensure font and size are set before measuring text width
             const textWidth = pdf.getTextWidth(designationText);
             pdf.text(designationText, rightAlignX - textWidth, designationY);
         }
