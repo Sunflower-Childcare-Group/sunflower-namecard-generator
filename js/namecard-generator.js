@@ -1356,9 +1356,9 @@ class NamecardGenerator {
         
         pdf.setFontSize(5.7); // Match Canva font size
         
-        // Exact PNG text positioning: 9mm + 5px - 0.02mm closer to icons
+        // Move contact text closer to icons for PDF
         // At 600 DPI: 5px ÷ 23.62 = 0.212mm
-        const textX = 9 + 0.212 - 0.02; // 9.192mm (0.02mm closer to icons)
+        const textX = 8.5; // 8.5mm (moved closer to icons)
         
         let currentY = 35;
         
